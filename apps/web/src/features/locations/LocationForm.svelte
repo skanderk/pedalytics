@@ -16,6 +16,10 @@
     return text ? Number(text) : null;
   }
 
+  function nullableText(value: FormDataEntryValue | null) {
+    return String(value ?? "").trim() || null;
+  }
+
   function submit(event: SubmitEvent) {
     event.preventDefault();
     const data = new FormData(event.currentTarget as HTMLFormElement);
@@ -23,7 +27,7 @@
       name: String(data.get("name")),
       address: String(data.get("address") || "") || null,
       city: String(data.get("city")),
-      provinceState: String(data.get("provinceState")),
+      provinceState: nullableText(data.get("provinceState")),
       country: String(data.get("country")),
       zipCode: String(data.get("zipCode") || "") || null,
       latitude: nullableNumber(data.get("latitude")),
@@ -36,7 +40,7 @@
   <label>Name<input name="name" value={location?.name ?? ""} required /></label>
   <label>Address<input name="address" value={location?.address ?? ""} /></label>
   <label>City<input name="city" value={location?.city ?? ""} required /></label>
-  <label>Province/state<input name="provinceState" value={location?.provinceState ?? ""} required /></label>
+  <label>Province/state<input name="provinceState" value={location?.provinceState ?? ""} /></label>
   <label>Country<input name="country" value={location?.country ?? ""} required /></label>
   <label>Zip code<input name="zipCode" value={location?.zipCode ?? ""} /></label>
   <label>Latitude<input name="latitude" type="number" step="any" value={location?.latitude ?? ""} /></label>

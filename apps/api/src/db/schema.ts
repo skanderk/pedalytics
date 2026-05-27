@@ -6,7 +6,7 @@ export const locations = sqliteTable("locations", {
   name: text("name").notNull(),
   address: text("address"),
   city: text("city").notNull(),
-  provinceState: text("province_state").notNull(),
+  provinceState: text("province_state"),
   country: text("country").notNull(),
   zipCode: text("zip_code"),
   latitude: real("latitude"),

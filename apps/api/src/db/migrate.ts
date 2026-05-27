@@ -1,20 +1,27 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createDatabaseConnection } from "./client.js";
 
-function resolveMigrationPath() {
-  const compiledPath = join(dirname(fileURLToPath(import.meta.url)), "migrations", "0001_initial.sql");
+function resolveMigrationsDirectory() {
+  const compiledPath = join(dirname(fileURLToPath(import.meta.url)), "migrations");
   if (existsSync(compiledPath)) {
     return compiledPath;
   }
-  return join(process.cwd(), "src", "db", "migrations", "0001_initial.sql");
+  return join(process.cwd(), "src", "db", "migrations");
 }
 
 export function runMigrations(databasePath?: string) {
   const { sqlite } = createDatabaseConnection(databasePath);
-  const migration = readFileSync(resolveMigrationPath(), "utf8");
-  sqlite.exec(migration);
+  const migrationsDirectory = resolveMigrationsDirectory();
+  const migrationPaths = readdirSync(migrationsDirectory)
+    .filter((fileName) => fileName.endsWith(".sql"))
+    .sort()
+    .map((fileName) => join(migrationsDirectory, fileName));
+
+  for (const migrationPath of migrationPaths) {
+    sqlite.exec(readFileSync(migrationPath, "utf8"));
+  }
   sqlite.close();
 }
 

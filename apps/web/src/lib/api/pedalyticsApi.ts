@@ -5,7 +5,7 @@ export interface Location {
   name: string;
   address: string | null;
   city: string;
-  provinceState: string;
+  provinceState: string | null;
   country: string;
   zipCode: string | null;
   latitude: number | null;

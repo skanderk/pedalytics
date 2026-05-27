@@ -7,7 +7,7 @@ export const locationCreateSchema = z.object({
   name: z.string().trim().min(1),
   address: nullableText,
   city: z.string().trim().min(1),
-  provinceState: z.string().trim().min(1),
+  provinceState: nullableText,
   country: z.string().trim().min(1),
   zipCode: nullableText,
   latitude: nullableCoordinate,

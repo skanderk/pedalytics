@@ -31,6 +31,7 @@ describe("LocationRepository", () => {
     });
 
     expect(repository.findById(created.id)?.name).toBe("Cafe");
+    expect(repository.findById(created.id)?.provinceState).toBeNull();
     sqlite.close();
   });
 });

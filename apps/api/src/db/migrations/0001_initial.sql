@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS locations (
   name TEXT NOT NULL,
   address TEXT,
   city TEXT NOT NULL,
-  province_state TEXT NOT NULL,
+  province_state TEXT,
   country TEXT NOT NULL,
   zip_code TEXT,
   latitude REAL,

@@ -53,7 +53,7 @@
           <tr>
             <td>{location.name}</td>
             <td>{location.address ?? ""}</td>
-            <td>{location.city}, {location.provinceState}</td>
+            <td>{[location.city, location.provinceState].filter(Boolean).join(", ")}</td>
             <td>{location.latitude ?? "n/a"}, {location.longitude ?? "n/a"}</td>
             <td class="actions">
               <button class="button secondary" title="Edit location" onclick={() => { editing = location; showForm = true; }}><Pencil size={16} /></button>
