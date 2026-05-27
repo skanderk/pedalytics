@@ -1,0 +1,29 @@
+{
+  "name": "@pedalytics/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:seed": "tsx src/db/seed/seed.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.0.1",
+    "@pedalytics/shared": "0.1.0",
+    "better-sqlite3": "^11.9.1",
+    "drizzle-orm": "^0.41.0",
+    "fastify": "^5.3.2",
+    "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.15.3",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
+  }
+}

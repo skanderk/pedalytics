@@ -1,0 +1,23 @@
+{
+  "name": "@pedalytics/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "chart.js": "^4.4.9",
+    "@lucide/svelte": "^0.511.0",
+    "svelte": "^5.28.2",
+    "vite": "^6.3.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.2"
+  }
+}

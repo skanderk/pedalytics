@@ -1,0 +1,20 @@
+import type { FastifyInstance } from "fastify";
+import { LocationRepository } from "../locations/location.repository.js";
+import { OpenMeteoWeatherProvider } from "../weather/weather.service.js";
+import { RideController } from "./ride.controller.js";
+import { RideRepository } from "./ride.repository.js";
+import { RideService } from "./ride.service.js";
+
+export async function registerRideRoutes(app: FastifyInstance) {
+  const repository = new RideRepository(app.db);
+  const locationRepository = new LocationRepository(app.db);
+  const weatherProvider = new OpenMeteoWeatherProvider();
+  const service = new RideService(repository, locationRepository, weatherProvider);
+  const controller = new RideController(service);
+
+  app.get("/api/rides", controller.list);
+  app.get("/api/rides/:id", controller.get);
+  app.post("/api/rides", controller.create);
+  app.put("/api/rides/:id", controller.update);
+  app.delete("/api/rides/:id", controller.delete);
+}

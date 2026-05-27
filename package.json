@@ -1,0 +1,21 @@
+{
+  "name": "pedalytics",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal cycling tracker and statistics app.",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @pedalytics/api & npm run dev --workspace @pedalytics/web",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces --if-present",
+    "db:migrate": "npm run db:migrate --workspace @pedalytics/api",
+    "db:seed": "npm run db:seed --workspace @pedalytics/api"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
