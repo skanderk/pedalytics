@@ -3,7 +3,7 @@
   import { Plus, Pencil, Trash2 } from "@lucide/svelte";
   import { pedalyticsApi, type AppSettings, type Location, type Ride, type RideInput } from "../../lib/api/pedalyticsApi";
   import { formatDate } from "../../lib/formatting/date";
-  import { formatKilometers } from "../../lib/formatting/distance";
+  import { formatKilometers, formatOptionalKilometersPerHour } from "../../lib/formatting/distance";
   import RideForm from "./RideForm.svelte";
 
   let rides = $state<Ride[]>([]);
@@ -52,24 +52,28 @@
 
 <section class="panel">
   {#if rides.length}
-    <table>
-      <thead><tr><th>Date</th><th>Distance</th><th>Route</th><th>Wind</th><th>Notes</th><th></th></tr></thead>
-      <tbody>
-        {#each rides as ride}
-          <tr>
-            <td>{formatDate(ride.rideDate)}</td>
-            <td>{formatKilometers(ride.distanceKm)}</td>
-            <td>{locationName(ride.departureLocationId)} to {locationName(ride.destinationLocationId)}</td>
-            <td>{ride.weatherWindDirectionCardinal ?? "n/a"} {ride.weatherWindSpeedKmh ? `${ride.weatherWindSpeedKmh} km/h` : ""}</td>
-            <td>{ride.notes ?? ""}</td>
-            <td class="actions">
-              <button class="button secondary" title="Edit ride" onclick={() => { editing = ride; showForm = true; }}><Pencil size={16} /></button>
-              <button class="button danger" title="Delete ride" onclick={() => remove(ride.id)}><Trash2 size={16} /></button>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Date</th><th>Distance</th><th>Max speed</th><th>Average speed</th><th>Route</th><th>Wind</th><th>Notes</th><th></th></tr></thead>
+        <tbody>
+          {#each rides as ride}
+            <tr>
+              <td>{formatDate(ride.rideDate)}</td>
+              <td>{formatKilometers(ride.distanceKm)}</td>
+              <td>{formatOptionalKilometersPerHour(ride.maxSpeedKmh)}</td>
+              <td>{formatOptionalKilometersPerHour(ride.averageSpeedKmh)}</td>
+              <td>{locationName(ride.departureLocationId)} to {locationName(ride.destinationLocationId)}</td>
+              <td>{ride.weatherWindDirectionCardinal ?? "n/a"} {ride.weatherWindSpeedKmh ? `${ride.weatherWindSpeedKmh} km/h` : ""}</td>
+              <td>{ride.notes ?? ""}</td>
+              <td class="actions">
+                <button class="button secondary" title="Edit ride" onclick={() => { editing = ride; showForm = true; }}><Pencil size={16} /></button>
+                <button class="button danger" title="Delete ride" onclick={() => remove(ride.id)}><Trash2 size={16} /></button>
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
   {:else}
     <div class="empty-state">No rides yet.</div>
   {/if}

@@ -21,6 +21,8 @@ export const rides = sqliteTable("rides", {
   startedAt: text("started_at"),
   endedAt: text("ended_at"),
   distanceKm: real("distance_km").notNull(),
+  maxSpeedKmh: real("max_speed_kmh"),
+  averageSpeedKmh: real("average_speed_kmh"),
   departureLocationId: integer("departure_location_id").references(() => locations.id, { onDelete: "set null" }),
   destinationLocationId: integer("destination_location_id").references(() => locations.id, { onDelete: "set null" }),
   notes: text("notes"),

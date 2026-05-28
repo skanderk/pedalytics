@@ -18,6 +18,8 @@ export interface Ride {
   startedAt: string | null;
   endedAt: string | null;
   distanceKm: number;
+  maxSpeedKmh: number | null;
+  averageSpeedKmh: number | null;
   departureLocationId: number | null;
   destinationLocationId: number | null;
   notes: string | null;

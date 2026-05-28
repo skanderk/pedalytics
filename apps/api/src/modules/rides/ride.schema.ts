@@ -7,12 +7,15 @@ const pastDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((value) => value
 const optionalTime = z.string().regex(/^\d{2}:\d{2}$/).nullable().optional();
 const optionalId = z.number().int().positive().nullable().optional();
 const optionalText = z.string().trim().nullable().optional();
+const optionalPositiveNumber = z.number().positive().nullable().optional();
 
 export const rideCreateSchema = z.object({
   rideDate: pastDate,
   startedAt: optionalTime,
   endedAt: optionalTime,
   distanceKm: z.number().positive(),
+  maxSpeedKmh: optionalPositiveNumber,
+  averageSpeedKmh: optionalPositiveNumber,
   departureLocationId: optionalId,
   destinationLocationId: optionalId,
   notes: optionalText

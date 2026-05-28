@@ -26,7 +26,7 @@ describe("LocationRepository", () => {
     const created = repository.create({
       name: "Cafe",
       city: "Montreal",
-      provinceState: "QC",
+      provinceState: null,
       country: "Canada"
     });
 

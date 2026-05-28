@@ -29,6 +29,8 @@
       startedAt: String(data.get("startedAt") || "") || null,
       endedAt: String(data.get("endedAt") || "") || null,
       distanceKm: Number(data.get("distanceKm")),
+      maxSpeedKmh: nullableNumber(data.get("maxSpeedKmh")),
+      averageSpeedKmh: nullableNumber(data.get("averageSpeedKmh")),
       departureLocationId: nullableNumber(data.get("departureLocationId")),
       destinationLocationId: nullableNumber(data.get("destinationLocationId")),
       notes: String(data.get("notes") || "") || null
@@ -39,6 +41,8 @@
 <form class="panel form-grid" onsubmit={submit}>
   <label>Ride date<input name="rideDate" type="date" max={today} value={ride?.rideDate ?? today} required /></label>
   <label>Distance km<input name="distanceKm" type="number" min="0.1" step="0.1" value={ride?.distanceKm ?? 0} required /></label>
+  <label>Max speed km/h<input name="maxSpeedKmh" type="number" min="0.1" step="0.1" value={ride?.maxSpeedKmh ?? ""} /></label>
+  <label>Average speed km/h<input name="averageSpeedKmh" type="number" min="0.1" step="0.1" value={ride?.averageSpeedKmh ?? ""} /></label>
   <label>Start time<input name="startedAt" type="time" value={ride?.startedAt ?? ""} /></label>
   <label>End time<input name="endedAt" type="time" value={ride?.endedAt ?? ""} /></label>
   <label>
