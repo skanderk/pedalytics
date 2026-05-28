@@ -42,7 +42,11 @@
 </header>
 
 {#if error}<div class="panel">{error}</div>{/if}
-{#if showForm}<LocationForm location={editing} onSave={save} onCancel={() => (showForm = false)} />{/if}
+{#if showForm}
+  {#key editing?.id ?? "new"}
+    <LocationForm location={editing} onSave={save} onCancel={() => (showForm = false)} />
+  {/key}
+{/if}
 
 <section class="panel">
   {#if locations.length}
