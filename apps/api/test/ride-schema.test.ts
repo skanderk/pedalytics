@@ -24,6 +24,40 @@ describe("rideCreateSchema", () => {
     expect(parsed.averageSpeedKmh).toBe(21.6);
   });
 
+  it("allows ride times where start is before end", () => {
+    const parsed = rideCreateSchema.parse({
+      rideDate: "2026-01-12",
+      distanceKm: 14.2,
+      startedAt: "08:15",
+      endedAt: "09:30"
+    });
+
+    expect(parsed.startedAt).toBe("08:15");
+    expect(parsed.endedAt).toBe("09:30");
+  });
+
+  it("rejects ride times where start equals end", () => {
+    const result = rideCreateSchema.safeParse({
+      rideDate: "2026-01-12",
+      distanceKm: 14.2,
+      startedAt: "08:15",
+      endedAt: "08:15"
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects ride times where start is after end", () => {
+    const result = rideCreateSchema.safeParse({
+      rideDate: "2026-01-12",
+      distanceKm: 14.2,
+      startedAt: "09:30",
+      endedAt: "08:15"
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it("rejects non-positive optional speed metrics", () => {
     const result = rideCreateSchema.safeParse({
       rideDate: "2026-01-12",

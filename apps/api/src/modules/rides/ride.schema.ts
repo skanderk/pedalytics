@@ -19,6 +19,9 @@ export const rideCreateSchema = z.object({
   departureLocationId: optionalId,
   destinationLocationId: optionalId,
   notes: optionalText
+}).refine((ride) => !ride.startedAt || !ride.endedAt || ride.startedAt < ride.endedAt, {
+  message: "Start time must be before end time",
+  path: ["endedAt"]
 });
 
 export const rideUpdateSchema = rideCreateSchema;
