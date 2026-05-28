@@ -92,6 +92,27 @@ function initializeMigrationHistory(sqlite: SqliteDatabase, migrationNames: stri
       recordMigration(sqlite, migrationName);
       applied.add(migrationName);
     }
+
+    if (
+      migrationName === "0005_simplify_app_settings.sql" &&
+      hasAppSettings &&
+      columnExists(sqlite, "app_settings", "use_metric_system") &&
+      !columnExists(sqlite, "app_settings", "default_city") &&
+      !columnExists(sqlite, "app_settings", "distance_unit")
+    ) {
+      recordMigration(sqlite, migrationName);
+      applied.add(migrationName);
+    }
+
+    if (
+      migrationName === "0006_remove_app_settings_timestamps.sql" &&
+      hasAppSettings &&
+      !columnExists(sqlite, "app_settings", "created_at") &&
+      !columnExists(sqlite, "app_settings", "updated_at")
+    ) {
+      recordMigration(sqlite, migrationName);
+      applied.add(migrationName);
+    }
   }
 
   return applied;
@@ -124,6 +145,38 @@ function runMigration(sqlite: SqliteDatabase, migrationName: string, sql: string
       sqlite.exec("ALTER TABLE rides RENAME COLUMN average_distance_km TO average_speed_kmh;");
     } else if (!hasNewAverage) {
       sqlite.exec("ALTER TABLE rides ADD COLUMN average_speed_kmh REAL;");
+    }
+    return;
+  }
+
+  if (migrationName === "0005_simplify_app_settings.sql" && tableExists(sqlite, "app_settings")) {
+    if (!columnExists(sqlite, "app_settings", "use_metric_system")) {
+      sqlite.exec("ALTER TABLE app_settings ADD COLUMN use_metric_system INTEGER NOT NULL DEFAULT 1;");
+    }
+
+    for (const columnName of [
+      "default_city",
+      "default_province_state",
+      "default_country",
+      "default_zip_code",
+      "default_latitude",
+      "default_longitude",
+      "distance_unit",
+      "temperature_unit",
+      "wind_speed_unit"
+    ]) {
+      if (columnExists(sqlite, "app_settings", columnName)) {
+        sqlite.exec(`ALTER TABLE app_settings DROP COLUMN ${columnName};`);
+      }
+    }
+    return;
+  }
+
+  if (migrationName === "0006_remove_app_settings_timestamps.sql" && tableExists(sqlite, "app_settings")) {
+    for (const columnName of ["created_at", "updated_at"]) {
+      if (columnExists(sqlite, "app_settings", columnName)) {
+        sqlite.exec(`ALTER TABLE app_settings DROP COLUMN ${columnName};`);
+      }
     }
     return;
   }

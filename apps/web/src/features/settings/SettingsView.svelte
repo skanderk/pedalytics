@@ -23,15 +23,7 @@
     const data = new FormData(event.currentTarget as HTMLFormElement);
     const input: SettingsInput = {
       homeLocationId: nullableNumber(data.get("homeLocationId")),
-      defaultCity: String(data.get("defaultCity")),
-      defaultProvinceState: String(data.get("defaultProvinceState")),
-      defaultCountry: String(data.get("defaultCountry")),
-      defaultZipCode: String(data.get("defaultZipCode") || "") || null,
-      defaultLatitude: nullableNumber(data.get("defaultLatitude")),
-      defaultLongitude: nullableNumber(data.get("defaultLongitude")),
-      distanceUnit: "km",
-      temperatureUnit: "celsius",
-      windSpeedUnit: "kmh"
+      useMetricSystem: data.has("useMetricSystem")
     };
 
     try {
@@ -50,7 +42,7 @@
 <header class="view-header">
   <div>
     <h1>Settings</h1>
-    <p class="muted">Home location, defaults, and metric units.</p>
+    <p class="muted">Home location and unit preference.</p>
   </div>
 </header>
 
@@ -65,15 +57,10 @@
         {/each}
       </select>
     </label>
-    <label>Default city<input name="defaultCity" bind:value={settings.defaultCity} /></label>
-    <label>Province/state<input name="defaultProvinceState" bind:value={settings.defaultProvinceState} /></label>
-    <label>Country<input name="defaultCountry" bind:value={settings.defaultCountry} /></label>
-    <label>Zip code<input name="defaultZipCode" bind:value={settings.defaultZipCode} /></label>
-    <label>Default latitude<input name="defaultLatitude" type="number" step="any" bind:value={settings.defaultLatitude} /></label>
-    <label>Default longitude<input name="defaultLongitude" type="number" step="any" bind:value={settings.defaultLongitude} /></label>
-    <label>Distance unit<input value="km" disabled /></label>
-    <label>Temperature unit<input value="celsius" disabled /></label>
-    <label>Wind speed unit<input value="kmh" disabled /></label>
+    <label class="checkbox-field">
+      <input name="useMetricSystem" type="checkbox" bind:checked={settings.useMetricSystem} />
+      <span>Use metric system</span>
+    </label>
     <div class="actions full">
       <button class="button" type="submit"><Save size={18} />Save settings</button>
       {#if saved}<span class="muted">{saved}</span>{/if}

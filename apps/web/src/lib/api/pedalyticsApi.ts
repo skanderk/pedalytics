@@ -36,22 +36,13 @@ export interface DashboardStats {
 }
 
 export interface AppSettings {
-  id: number;
   homeLocationId: number | null;
-  defaultCity: string;
-  defaultProvinceState: string;
-  defaultCountry: string;
-  defaultZipCode: string | null;
-  defaultLatitude: number | null;
-  defaultLongitude: number | null;
-  distanceUnit: "km";
-  temperatureUnit: "celsius";
-  windSpeedUnit: "kmh";
+  useMetricSystem: boolean;
 }
 
 export type RideInput = Omit<Ride, "id" | "weatherWindDirectionCardinal" | "weatherWindSpeedKmh">;
 export type LocationInput = Omit<Location, "id">;
-export type SettingsInput = Omit<AppSettings, "id">;
+export type SettingsInput = AppSettings;
 
 export const pedalyticsApi = {
   getDashboard: (year?: number, month?: number) => {

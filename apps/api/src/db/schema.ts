@@ -42,17 +42,7 @@ export const rides = sqliteTable("rides", {
 export const appSettings = sqliteTable("app_settings", {
   id: integer("id").primaryKey().default(1),
   homeLocationId: integer("home_location_id").references(() => locations.id, { onDelete: "set null" }),
-  defaultCity: text("default_city").notNull().default(""),
-  defaultProvinceState: text("default_province_state").notNull().default(""),
-  defaultCountry: text("default_country").notNull().default(""),
-  defaultZipCode: text("default_zip_code"),
-  defaultLatitude: real("default_latitude"),
-  defaultLongitude: real("default_longitude"),
-  distanceUnit: text("distance_unit").notNull().default("km"),
-  temperatureUnit: text("temperature_unit").notNull().default("celsius"),
-  windSpeedUnit: text("wind_speed_unit").notNull().default("kmh"),
-  createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`)
+  useMetricSystem: integer("use_metric_system", { mode: "boolean" }).notNull().default(true)
 });
 
 export const rideRelations = relations(rides, ({ one }) => ({

@@ -189,6 +189,20 @@ label {
   font-size: 0.9rem;
 }
 
+.checkbox-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  align-self: end;
+}
+
+.checkbox-field input {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  accent-color: #1c7c54;
+}
+
 input,
 select,
 textarea {

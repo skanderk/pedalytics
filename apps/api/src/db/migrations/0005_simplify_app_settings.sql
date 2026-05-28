@@ -1,0 +1,10 @@
+ALTER TABLE app_settings ADD COLUMN use_metric_system INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE app_settings DROP COLUMN default_city;
+ALTER TABLE app_settings DROP COLUMN default_province_state;
+ALTER TABLE app_settings DROP COLUMN default_country;
+ALTER TABLE app_settings DROP COLUMN default_zip_code;
+ALTER TABLE app_settings DROP COLUMN default_latitude;
+ALTER TABLE app_settings DROP COLUMN default_longitude;
+ALTER TABLE app_settings DROP COLUMN distance_unit;
+ALTER TABLE app_settings DROP COLUMN temperature_unit;
+ALTER TABLE app_settings DROP COLUMN wind_speed_unit;

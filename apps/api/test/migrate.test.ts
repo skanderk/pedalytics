@@ -34,7 +34,16 @@ describe("runMigrations", () => {
     expect(columns).toContain("average_speed_kmh");
     expect(columns).not.toContain("max_distance_km");
     expect(columns).not.toContain("average_distance_km");
-    expect(applied).toHaveLength(4);
+    const settingsColumns = sqlite
+      .prepare("PRAGMA table_info(app_settings)")
+      .all()
+      .map((column) => (column as { name: string }).name);
+    expect(settingsColumns).toContain("use_metric_system");
+    expect(settingsColumns).not.toContain("default_city");
+    expect(settingsColumns).not.toContain("distance_unit");
+    expect(settingsColumns).not.toContain("created_at");
+    expect(settingsColumns).not.toContain("updated_at");
+    expect(applied).toHaveLength(6);
     sqlite.close();
   });
 
@@ -67,7 +76,9 @@ describe("runMigrations", () => {
       { name: "0001_initial.sql" },
       { name: "0002_nullable_location_province_state.sql" },
       { name: "0003_add_ride_speed_metrics.sql" },
-      { name: "0004_rename_ride_distance_metrics_to_speed_metrics.sql" }
+      { name: "0004_rename_ride_distance_metrics_to_speed_metrics.sql" },
+      { name: "0005_simplify_app_settings.sql" },
+      { name: "0006_remove_app_settings_timestamps.sql" }
     ]);
     migrated.close();
   });

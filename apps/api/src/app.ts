@@ -20,7 +20,10 @@ export async function buildApp() {
 
   app.decorate("db", db);
   app.addHook("onClose", async () => sqlite.close());
-  await app.register(cors, { origin: true });
+  await app.register(cors, {
+    origin: true,
+    methods: ["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"]
+  });
 
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof ZodError) {

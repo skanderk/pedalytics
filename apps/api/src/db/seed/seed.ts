@@ -58,23 +58,13 @@ db.insert(appSettings)
   .values({
     id: 1,
     homeLocationId: home.id,
-    defaultCity: "Montreal",
-    defaultProvinceState: "QC",
-    defaultCountry: "Canada",
-    defaultZipCode: "H2X",
-    defaultLatitude: 45.5019,
-    defaultLongitude: -73.5674
+    useMetricSystem: true
   })
   .onConflictDoUpdate({
     target: appSettings.id,
     set: {
       homeLocationId: home.id,
-      defaultCity: "Montreal",
-      defaultProvinceState: "QC",
-      defaultCountry: "Canada",
-      defaultZipCode: "H2X",
-      defaultLatitude: 45.5019,
-      defaultLongitude: -73.5674
+      useMetricSystem: true
     }
   })
   .run();

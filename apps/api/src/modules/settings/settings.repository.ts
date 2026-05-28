@@ -16,10 +16,10 @@ export class SettingsRepository {
   update(input: NewAppSettingsRecord): AppSettingsRecord {
     return this.db
       .insert(appSettings)
-      .values({ id: 1, ...input, updatedAt: new Date().toISOString() })
+      .values({ id: 1, ...input })
       .onConflictDoUpdate({
         target: appSettings.id,
-        set: { ...input, updatedAt: new Date().toISOString() }
+        set: input
       })
       .returning()
       .get();
