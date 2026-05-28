@@ -1,12 +1,14 @@
 const apiBaseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:3333";
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const headers = new Headers(options.headers);
+  if (options.body !== undefined && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
   const response = await fetch(`${apiBaseUrl}${path}`, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers
-    }
+    headers
   });
 
   if (!response.ok) {

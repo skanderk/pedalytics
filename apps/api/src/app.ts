@@ -14,6 +14,19 @@ declare module "fastify" {
   }
 }
 
+function hasClientErrorStatus(error: unknown): error is { message: string; statusCode: number } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    "statusCode" in error &&
+    typeof error.message === "string" &&
+    typeof error.statusCode === "number" &&
+    error.statusCode >= 400 &&
+    error.statusCode < 500
+  );
+}
+
 export async function buildApp() {
   const app = Fastify({ logger: true });
   const { db, sqlite } = createDatabaseConnection();
@@ -38,6 +51,10 @@ export async function buildApp() {
 
     if (error instanceof Error && error.message.endsWith("_NOT_FOUND")) {
       return reply.code(404).send({ message: error.message });
+    }
+
+    if (hasClientErrorStatus(error)) {
+      return reply.code(error.statusCode).send({ message: error.message });
     }
 
     app.log.error(error);
