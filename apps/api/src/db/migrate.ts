@@ -181,6 +181,13 @@ function runMigration(sqlite: SqliteDatabase, migrationName: string, sql: string
     return;
   }
 
+  if (migrationName === "0007_index_rides_ride_date.sql" && tableExists(sqlite, "rides")) {
+    if (columnExists(sqlite, "rides", "ride_date")) {
+      sqlite.exec("CREATE INDEX IF NOT EXISTS idx_rides_ride_date ON rides (ride_date);");
+    }
+    return;
+  }
+
   sqlite.exec(sql);
 }
 

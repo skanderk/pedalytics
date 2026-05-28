@@ -53,6 +53,10 @@ export async function buildApp() {
       return reply.code(404).send({ message: error.message });
     }
 
+    if (error instanceof Error && error.message === "RIDE_TIME_OVERLAP") {
+      return reply.code(409).send({ message: error.message });
+    }
+
     if (hasClientErrorStatus(error)) {
       return reply.code(error.statusCode).send({ message: error.message });
     }

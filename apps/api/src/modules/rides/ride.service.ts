@@ -23,10 +23,15 @@ export class RideService {
   }
 
   async createRide(input: RideCreateInput) {
+    this.assertDoesNotOverlap(input);
     return this.rides.create(await this.withWeatherSnapshot(input));
   }
 
   async updateRide(id: number, input: RideUpdateInput) {
+    if (!this.rides.findById(id)) {
+      throw new Error("RIDE_NOT_FOUND");
+    }
+    this.assertDoesNotOverlap(input, id);
     const ride = this.rides.update(id, await this.withWeatherSnapshot(input));
     if (!ride) {
       throw new Error("RIDE_NOT_FOUND");
@@ -37,6 +42,27 @@ export class RideService {
   deleteRide(id: number) {
     if (!this.rides.delete(id)) {
       throw new Error("RIDE_NOT_FOUND");
+    }
+  }
+
+  private assertDoesNotOverlap(input: RideCreateInput | RideUpdateInput, currentRideId?: number) {
+    if (!input.startedAt || !input.endedAt) {
+      return;
+    }
+
+    const overlappingRide = this.rides
+      .listByRideDate(input.rideDate)
+      .find(
+        (ride) =>
+          ride.id !== currentRideId &&
+          ride.startedAt != null &&
+          ride.endedAt != null &&
+          input.startedAt! < ride.endedAt &&
+          ride.startedAt < input.endedAt!
+      );
+
+    if (overlappingRide) {
+      throw new Error("RIDE_TIME_OVERLAP");
     }
   }
 

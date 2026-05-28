@@ -43,7 +43,12 @@ describe("runMigrations", () => {
     expect(settingsColumns).not.toContain("distance_unit");
     expect(settingsColumns).not.toContain("created_at");
     expect(settingsColumns).not.toContain("updated_at");
-    expect(applied).toHaveLength(6);
+    const rideIndexes = sqlite
+      .prepare("PRAGMA index_list(rides)")
+      .all()
+      .map((index) => (index as { name: string }).name);
+    expect(rideIndexes).toContain("idx_rides_ride_date");
+    expect(applied).toHaveLength(7);
     sqlite.close();
   });
 
@@ -78,7 +83,8 @@ describe("runMigrations", () => {
       { name: "0003_add_ride_speed_metrics.sql" },
       { name: "0004_rename_ride_distance_metrics_to_speed_metrics.sql" },
       { name: "0005_simplify_app_settings.sql" },
-      { name: "0006_remove_app_settings_timestamps.sql" }
+      { name: "0006_remove_app_settings_timestamps.sql" },
+      { name: "0007_index_rides_ride_date.sql" }
     ]);
     migrated.close();
   });

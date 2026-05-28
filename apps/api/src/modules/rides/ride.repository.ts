@@ -17,6 +17,10 @@ export class RideRepository {
     return this.db.select().from(rides).where(eq(rides.id, id)).get();
   }
 
+  listByRideDate(rideDate: string): RideRecord[] {
+    return this.db.select().from(rides).where(eq(rides.rideDate, rideDate)).orderBy(asc(rides.startedAt), asc(rides.id)).all();
+  }
+
   create(input: NewRideRecord): RideRecord {
     return this.db.insert(rides).values(input).returning().get();
   }
