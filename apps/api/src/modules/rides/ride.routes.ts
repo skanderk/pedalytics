@@ -5,7 +5,8 @@ import { RideController } from "./ride.controller.js";
 import { RideRepository } from "./ride.repository.js";
 import { RideService } from "./ride.service.js";
 
-export async function registerRideRoutes(app: FastifyInstance) {
+export async function registerRideRoutes(app: FastifyInstance): Promise<void> {
+  // Wire RideControlller.
   const repository = new RideRepository(app.db);
   const locationRepository = new LocationRepository(app.db);
   const weatherProvider = new OpenMeteoWeatherProvider();

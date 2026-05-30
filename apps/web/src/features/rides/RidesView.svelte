@@ -48,7 +48,11 @@
 </header>
 
 {#if error}<div class="panel">{error}</div>{/if}
-{#if showForm}<RideForm {locations} {settings} ride={editing} onSave={save} onCancel={() => (showForm = false)} />{/if}
+{#if showForm}
+  {#key editing?.id ?? "new"}
+    <RideForm {locations} {settings} ride={editing} onSave={save} onCancel={() => (showForm = false)} />
+  {/key}
+{/if}
 
 <section class="panel">
   {#if rides.length}

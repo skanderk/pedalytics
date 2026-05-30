@@ -12,13 +12,13 @@ export class RideController {
     return this.rides.getRide(id);
   };
 
-  create = async (request: FastifyRequest, reply: FastifyReply) => {
+  create = async (request: FastifyRequest, reply: FastifyReply): Promise<FastifyReply> => {
     const input = rideCreateSchema.parse(request.body);
     const ride = await this.rides.createRide(input);
     return reply.code(201).send(ride);
   };
 
-  update = async (request: FastifyRequest) => {
+  update = async (request: FastifyRequest, reply: FastifyReply) =>  {
     const { id } = rideIdParamsSchema.parse(request.params);
     const input = rideUpdateSchema.parse(request.body);
     return this.rides.updateRide(id, input);

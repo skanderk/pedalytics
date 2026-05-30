@@ -234,6 +234,120 @@ textarea,
   border: 0;
 }
 
+.route-map {
+  position: relative;
+  height: 320px;
+  overflow: hidden;
+  border: 1px solid #cfdacd;
+  border-radius: 8px;
+  background: #e6efe3;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.route-map.dragging {
+  cursor: grabbing;
+}
+
+.route-map-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.route-map-canvas line {
+  stroke: #1c7c54;
+  stroke-width: 5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 1px 2px rgba(16, 37, 29, 0.35));
+}
+
+.route-distance-label rect {
+  fill: rgba(255, 255, 255, 0.95);
+  stroke: #1c7c54;
+  stroke-width: 1.5;
+  filter: drop-shadow(0 2px 5px rgba(16, 37, 29, 0.25));
+}
+
+.route-distance-label text {
+  fill: #17201b;
+  font-size: 14px;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.route-marker path {
+  stroke: #ffffff;
+  stroke-width: 3;
+  filter: drop-shadow(0 5px 8px rgba(16, 37, 29, 0.35));
+}
+
+.route-marker circle {
+  fill: rgba(255, 255, 255, 0.18);
+}
+
+.route-marker text {
+  fill: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.route-marker.departure path {
+  fill: #1c7c54;
+}
+
+.route-marker.destination path {
+  fill: #b64232;
+}
+
+.route-map-attribution {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  z-index: 3;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #405149;
+  font-size: 0.75rem;
+  text-decoration: none;
+}
+
+.route-map-controls {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 3;
+  display: grid;
+  overflow: hidden;
+  border: 1px solid rgba(64, 81, 73, 0.28);
+  border-radius: 6px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(16, 37, 29, 0.18);
+}
+
+.route-map-controls button {
+  width: 34px;
+  height: 32px;
+  border: 0;
+  border-bottom: 1px solid #dfe7dd;
+  background: #ffffff;
+  color: #17201b;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.route-map-controls button:last-child {
+  border-bottom: 0;
+}
+
+.route-map-controls button:hover {
+  background: #eef4eb;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

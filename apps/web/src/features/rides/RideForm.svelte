@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { AppSettings, Location, Ride, RideInput } from "../../lib/api/pedalyticsApi";
+  import RideRouteMap from "./RideRouteMap.svelte";
 
   let {
     ride = null,
@@ -16,6 +17,23 @@
   } = $props();
 
   const today = new Date().toISOString().slice(0, 10);
+  let activeRideKey = $state("");
+  let distanceKm = $state("0");
+  let departureLocationId = $state("");
+  let destinationLocationId = $state("");
+  let departureLocation = $derived(locations.find((location) => String(location.id) === departureLocationId) ?? null);
+  let destinationLocation = $derived(locations.find((location) => String(location.id) === destinationLocationId) ?? null);
+
+  $effect(() => {
+    const rideKey = ride?.id == null ? `new-${settings?.homeLocationId ?? ""}` : String(ride.id);
+    if (activeRideKey === rideKey) return;
+
+    activeRideKey = rideKey;
+    distanceKm = ride?.distanceKm == null ? "0" : String(ride.distanceKm);
+    departureLocationId = ride?.departureLocationId == null ? String(settings?.homeLocationId ?? "") : String(ride.departureLocationId);
+    destinationLocationId = ride?.destinationLocationId == null ? "" : String(ride.destinationLocationId);
+  });
+
   function nullableNumber(value: FormDataEntryValue | null) {
     const parsed = Number(value);
     return parsed > 0 ? parsed : null;
@@ -40,29 +58,30 @@
 
 <form class="panel form-grid" onsubmit={submit}>
   <label>Ride date<input name="rideDate" type="date" max={today} value={ride?.rideDate ?? today} required /></label>
-  <label>Distance km<input name="distanceKm" type="number" min="0.1" step="0.1" value={ride?.distanceKm ?? 0} required /></label>
+  <label>Distance km<input name="distanceKm" type="number" min="0.1" step="0.1" bind:value={distanceKm} required /></label>
   <label>Max speed km/h<input name="maxSpeedKmh" type="number" min="0.1" step="0.1" value={ride?.maxSpeedKmh ?? ""} /></label>
   <label>Average speed km/h<input name="averageSpeedKmh" type="number" min="0.1" step="0.1" value={ride?.averageSpeedKmh ?? ""} /></label>
   <label>Start time<input name="startedAt" type="time" value={ride?.startedAt ?? ""} /></label>
   <label>End time<input name="endedAt" type="time" value={ride?.endedAt ?? ""} /></label>
   <label>
     Departure
-    <select name="departureLocationId" value={ride?.departureLocationId ?? settings?.homeLocationId ?? ""}>
+    <select name="departureLocationId" bind:value={departureLocationId}>
       <option value="">None</option>
       {#each locations as location}
-        <option value={location.id}>{location.name}</option>
+        <option value={String(location.id)}>{location.name}</option>
       {/each}
     </select>
   </label>
   <label>
     Destination
-    <select name="destinationLocationId" value={ride?.destinationLocationId ?? ""}>
+    <select name="destinationLocationId" bind:value={destinationLocationId}>
       <option value="">None</option>
       {#each locations as location}
-        <option value={location.id}>{location.name}</option>
+        <option value={String(location.id)}>{location.name}</option>
       {/each}
     </select>
   </label>
+  <RideRouteMap departure={departureLocation} destination={destinationLocation} distanceKm={Number(distanceKm)} />
   <label class="full">Notes<textarea name="notes" rows="3" value={ride?.notes ?? ""}></textarea></label>
   <div class="actions full">
     <button class="button" type="submit">{ride ? "Update ride" : "Create ride"}</button>

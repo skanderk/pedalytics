@@ -27,6 +27,10 @@ function hasClientErrorStatus(error: unknown): error is { message: string; statu
   );
 }
 
+/**
+ * Creates a Fastify aplication. Configures the database connection, registers routes and error handlers.
+ * @returns A promise resolving to the configured Fastify instance.
+ */
 export async function buildApp() {
   const app = Fastify({ logger: true });
   const { db, sqlite } = createDatabaseConnection();
@@ -62,6 +66,8 @@ export async function buildApp() {
     }
 
     app.log.error(error);
+
+    // Default to 500 Internal Server Error for unhandled cases.
     return reply.code(500).send({ message: "Internal server error" });
   });
 

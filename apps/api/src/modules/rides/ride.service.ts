@@ -31,6 +31,7 @@ export class RideService {
     if (!this.rides.findById(id)) {
       throw new Error("RIDE_NOT_FOUND");
     }
+
     this.assertDoesNotOverlap(input, id);
     const ride = this.rides.update(id, await this.withWeatherSnapshot(input));
     if (!ride) {
