@@ -422,7 +422,7 @@ th {
 .location-details,
 .ride-details {
   display: grid;
-  gap: 16px;
+  gap: 18px;
   padding: 18px;
   border: 1px solid #dfe7dd;
   border-radius: 8px;
@@ -450,6 +450,21 @@ th {
   margin: 0;
 }
 
+.detail-section {
+  display: grid;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #e4ece2;
+}
+
+.detail-section h3 {
+  margin: 0;
+  color: #1c7c54;
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
 .detail-grid div {
   min-width: 0;
 }
@@ -465,6 +480,13 @@ th {
   margin: 4px 0 0;
   color: #17201b;
   overflow-wrap: anywhere;
+}
+
+.detail-notes {
+  margin: 0;
+  color: #17201b;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
 }
 
 .actions {

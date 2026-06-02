@@ -23,8 +23,13 @@ export interface Ride {
   departureLocationId: number | null;
   destinationLocationId: number | null;
   notes: string | null;
+  weatherTemperatureCelsius: number | null;
+  weatherFeelsLikeCelsius: number | null;
+  weatherPrecipitationMm: number | null;
+  weatherRainMm: number | null;
   weatherWindDirectionCardinal: string | null;
   weatherWindSpeedKmh: number | null;
+  weatherWindDirectionDegrees: number | null;
 }
 
 export interface DashboardStats {
@@ -40,7 +45,17 @@ export interface AppSettings {
   useMetricSystem: boolean;
 }
 
-export type RideInput = Omit<Ride, "id" | "weatherWindDirectionCardinal" | "weatherWindSpeedKmh">;
+export type RideInput = Omit<
+  Ride,
+  | "id"
+  | "weatherTemperatureCelsius"
+  | "weatherFeelsLikeCelsius"
+  | "weatherPrecipitationMm"
+  | "weatherRainMm"
+  | "weatherWindDirectionCardinal"
+  | "weatherWindSpeedKmh"
+  | "weatherWindDirectionDegrees"
+>;
 export type LocationInput = Omit<Location, "id">;
 export type SettingsInput = AppSettings;
 

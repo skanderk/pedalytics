@@ -94,9 +94,22 @@
     return value ?? "n/a";
   }
 
+  function formatCelsius(value: number | null) {
+    return value == null ? "n/a" : `${value.toFixed(1)} °C`;
+  }
+
+  function formatMillimeters(value: number | null) {
+    return value == null ? "n/a" : `${value.toFixed(1)} mm`;
+  }
+
   function windText(ride: Ride) {
-    if (!ride.weatherWindDirectionCardinal && ride.weatherWindSpeedKmh == null) return "n/a";
-    return [ride.weatherWindDirectionCardinal, ride.weatherWindSpeedKmh == null ? null : `${ride.weatherWindSpeedKmh} km/h`].filter(Boolean).join(" ");
+    const direction = [
+      ride.weatherWindDirectionCardinal,
+      ride.weatherWindDirectionDegrees == null ? null : `${ride.weatherWindDirectionDegrees}°`
+    ].filter(Boolean).join(" ");
+
+    if (!direction && ride.weatherWindSpeedKmh == null) return "n/a";
+    return [direction || null, ride.weatherWindSpeedKmh == null ? null : `${ride.weatherWindSpeedKmh} km/h`].filter(Boolean).join(", ");
   }
 
   onMount(load);
@@ -162,19 +175,39 @@
                         <button class="button secondary" type="button" onclick={() => openEditForm(ride)}><Pencil size={16} />Edit</button>
                       </div>
                     </div>
-                    <dl class="detail-grid">
-                      <div><dt>Date</dt><dd>{formatDate(ride.rideDate)}</dd></div>
-                      <div><dt>Distance</dt><dd>{formatKilometers(ride.distanceKm)}</dd></div>
-                      <div><dt>Max speed</dt><dd>{formatOptionalKilometersPerHour(ride.maxSpeedKmh)}</dd></div>
-                      <div><dt>Average speed</dt><dd>{formatOptionalKilometersPerHour(ride.averageSpeedKmh)}</dd></div>
-                      <div><dt>Start time</dt><dd>{valueOrEmpty(ride.startedAt)}</dd></div>
-                      <div><dt>End time</dt><dd>{valueOrEmpty(ride.endedAt)}</dd></div>
-                      <div><dt>Departure</dt><dd>{locationName(ride.departureLocationId)}</dd></div>
-                      <div><dt>Destination</dt><dd>{locationName(ride.destinationLocationId)}</dd></div>
-                      <div><dt>Wind</dt><dd>{windText(ride)}</dd></div>
-                      <div><dt>Notes</dt><dd>{valueOrEmpty(ride.notes)}</dd></div>
-                    </dl>
-                    <RideRouteMap departure={locationById(ride.departureLocationId)} destination={locationById(ride.destinationLocationId)} distanceKm={ride.distanceKm} />
+                    <section class="detail-section">
+                      <h3>Ride</h3>
+                      <dl class="detail-grid">
+                        <div><dt>Date</dt><dd>{formatDate(ride.rideDate)}</dd></div>
+                        <div><dt>Distance</dt><dd>{formatKilometers(ride.distanceKm)}</dd></div>
+                        <div><dt>Max speed</dt><dd>{formatOptionalKilometersPerHour(ride.maxSpeedKmh)}</dd></div>
+                        <div><dt>Average speed</dt><dd>{formatOptionalKilometersPerHour(ride.averageSpeedKmh)}</dd></div>
+                        <div><dt>Start time</dt><dd>{valueOrEmpty(ride.startedAt)}</dd></div>
+                        <div><dt>End time</dt><dd>{valueOrEmpty(ride.endedAt)}</dd></div>
+                      </dl>
+                    </section>
+                    <section class="detail-section">
+                      <h3>Route</h3>
+                      <dl class="detail-grid">
+                        <div><dt>Departure</dt><dd>{locationName(ride.departureLocationId)}</dd></div>
+                        <div><dt>Destination</dt><dd>{locationName(ride.destinationLocationId)}</dd></div>
+                      </dl>
+                      <RideRouteMap departure={locationById(ride.departureLocationId)} destination={locationById(ride.destinationLocationId)} distanceKm={ride.distanceKm} />
+                    </section>
+                    <section class="detail-section">
+                      <h3>Weather</h3>
+                      <dl class="detail-grid">
+                        <div><dt>Temperature</dt><dd>{formatCelsius(ride.weatherTemperatureCelsius)}</dd></div>
+                        <div><dt>Feels like</dt><dd>{formatCelsius(ride.weatherFeelsLikeCelsius)}</dd></div>
+                        <div><dt>Precipitation</dt><dd>{formatMillimeters(ride.weatherPrecipitationMm)}</dd></div>
+                        <div><dt>Rain</dt><dd>{formatMillimeters(ride.weatherRainMm)}</dd></div>
+                        <div><dt>Wind</dt><dd>{windText(ride)}</dd></div>
+                      </dl>
+                    </section>
+                    <section class="detail-section">
+                      <h3>Notes</h3>
+                      <p class="detail-notes">{valueOrEmpty(ride.notes)}</p>
+                    </section>
                   </section>
                 </td>
               </tr>
