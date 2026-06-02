@@ -119,7 +119,7 @@
 <section class="panel">
   {#if locations.length}
     <table>
-      <thead><tr><th>Name</th><th>Address</th><th>City</th><th>Coordinates</th><th></th></tr></thead>
+      <thead><tr><th>Name</th><th>Address</th><th class="actions-cell"></th></tr></thead>
       <tbody>
         {#each locations as location, index}
           <tr
@@ -136,9 +136,7 @@
           >
             <td>{location.name}</td>
             <td>{location.address ?? ""}</td>
-            <td>{[location.city, location.provinceState].filter(Boolean).join(", ")}</td>
-            <td>{location.latitude ?? "n/a"}, {location.longitude ?? "n/a"}</td>
-            <td class="actions" onclick={stopRowClick}>
+            <td class="actions actions-cell" onclick={stopRowClick}>
               <button class="button secondary" title="View location details" aria-label={`View details for ${location.name}`} onclick={() => toggleDetails(location)}><Eye size={16} /></button>
               <button class="button secondary" title="Edit location" aria-label={`Edit ${location.name}`} onclick={() => openEditForm(location)}><Pencil size={16} /></button>
               <button class="button danger" title="Delete location" aria-label={`Delete ${location.name}`} onclick={() => remove(location.id)}><Trash2 size={16} /></button>
@@ -146,7 +144,7 @@
           </tr>
           {#if selectedLocation?.id === location.id}
             <tr class="details-row">
-              <td colspan="5">
+              <td colspan="3">
                 <section class="location-details" id={`location-details-${location.id}`} aria-label={`Details for ${location.name}`}>
                   <div class="location-details-header">
                     <div>

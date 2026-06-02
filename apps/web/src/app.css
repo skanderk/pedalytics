@@ -462,6 +462,14 @@ th {
   flex-wrap: wrap;
 }
 
+.actions-cell {
+  text-align: right;
+}
+
+td.actions-cell {
+  justify-content: flex-end;
+}
+
 .empty-state {
   padding: 28px;
   color: #637268;
