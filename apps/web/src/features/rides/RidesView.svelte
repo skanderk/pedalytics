@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Eye, Plus, Pencil, Trash2 } from "@lucide/svelte";
+  import { Cloud, CloudFog, CloudLightning, CloudRain, CloudSnow, CloudSun, Eye, Plus, Pencil, Sun, Trash2 } from "@lucide/svelte";
   import { pedalyticsApi, type AppSettings, type Location, type Ride, type RideInput } from "../../lib/api/pedalyticsApi";
   import { formatDate } from "../../lib/formatting/date";
   import { formatKilometers, formatOptionalKilometersPerHour } from "../../lib/formatting/distance";
@@ -112,6 +112,32 @@
     return [direction || null, ride.weatherWindSpeedKmh == null ? null : `${ride.weatherWindSpeedKmh} km/h`].filter(Boolean).join(", ");
   }
 
+  function weatherConditionLabel(code: number | null) {
+    if (code == null) return "Weather unavailable";
+    if (code === 0) return "Clear";
+    if (code <= 3) return "Cloudy";
+    if (code <= 48) return "Fog";
+    if (code <= 67) return "Rain";
+    if (code <= 77) return "Snow";
+    if (code <= 82) return "Showers";
+    if (code <= 86) return "Snow showers";
+    if (code <= 99) return "Thunderstorm";
+    return "Weather";
+  }
+
+  function weatherConditionClass(code: number | null) {
+    if (code == null) return "weather-badge-unavailable";
+    if (code === 0) return "weather-badge-clear";
+    if (code <= 3) return "weather-badge-cloudy";
+    if (code <= 48) return "weather-badge-fog";
+    if (code <= 67) return "weather-badge-rain";
+    if (code <= 77) return "weather-badge-snow";
+    if (code <= 82) return "weather-badge-rain";
+    if (code <= 86) return "weather-badge-snow";
+    if (code <= 99) return "weather-badge-thunderstorm";
+    return "weather-badge-unavailable";
+  }
+
   onMount(load);
 </script>
 
@@ -195,7 +221,31 @@
                       <RideRouteMap departure={locationById(ride.departureLocationId)} destination={locationById(ride.destinationLocationId)} distanceKm={ride.distanceKm} />
                     </section>
                     <section class="detail-section">
-                      <h3>Weather</h3>
+                      <div class="detail-section-heading">
+                        <h3>Weather</h3>
+                        <span class={`weather-badge ${weatherConditionClass(ride.weatherCode)}`}>
+                          {#if ride.weatherCode === 0}
+                            <Sun size={20} />
+                          {:else if ride.weatherCode != null && ride.weatherCode <= 3}
+                            <CloudSun size={20} />
+                          {:else if ride.weatherCode != null && ride.weatherCode <= 48}
+                            <CloudFog size={20} />
+                          {:else if ride.weatherCode != null && ride.weatherCode <= 67}
+                            <CloudRain size={20} />
+                          {:else if ride.weatherCode != null && ride.weatherCode <= 77}
+                            <CloudSnow size={20} />
+                          {:else if ride.weatherCode != null && ride.weatherCode <= 82}
+                            <CloudRain size={20} />
+                          {:else if ride.weatherCode != null && ride.weatherCode <= 86}
+                            <CloudSnow size={20} />
+                          {:else if ride.weatherCode != null && ride.weatherCode <= 99}
+                            <CloudLightning size={20} />
+                          {:else}
+                            <Cloud size={20} />
+                          {/if}
+                          {weatherConditionLabel(ride.weatherCode)}
+                        </span>
+                      </div>
                       <dl class="detail-grid">
                         <div><dt>Temperature</dt><dd>{formatCelsius(ride.weatherTemperatureCelsius)}</dd></div>
                         <div><dt>Feels like</dt><dd>{formatCelsius(ride.weatherFeelsLikeCelsius)}</dd></div>

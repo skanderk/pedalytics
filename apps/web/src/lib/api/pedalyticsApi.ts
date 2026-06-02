@@ -30,6 +30,7 @@ export interface Ride {
   weatherWindDirectionCardinal: string | null;
   weatherWindSpeedKmh: number | null;
   weatherWindDirectionDegrees: number | null;
+  weatherCode: number | null;
 }
 
 export interface DashboardStats {
@@ -55,6 +56,7 @@ export type RideInput = Omit<
   | "weatherWindDirectionCardinal"
   | "weatherWindSpeedKmh"
   | "weatherWindDirectionDegrees"
+  | "weatherCode"
 >;
 export type LocationInput = Omit<Location, "id">;
 export type SettingsInput = AppSettings;
