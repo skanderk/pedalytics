@@ -384,6 +384,70 @@ th {
   text-transform: uppercase;
 }
 
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover,
+.selected-row {
+  background: #f4f8f2;
+}
+
+.clickable-row:focus-visible {
+  outline: 2px solid #1c7c54;
+  outline-offset: -2px;
+}
+
+.details-row > td {
+  padding: 0 12px 18px;
+  background: #f4f8f2;
+}
+
+.location-details {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid #dfe7dd;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.location-details-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.location-details-header h2 {
+  margin-bottom: 4px;
+  font-size: 1.4rem;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.detail-grid div {
+  min-width: 0;
+}
+
+.detail-grid dt {
+  color: #637268;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.detail-grid dd {
+  margin: 4px 0 0;
+  color: #17201b;
+  overflow-wrap: anywhere;
+}
+
 .actions {
   display: flex;
   gap: 8px;
@@ -423,8 +487,14 @@ th {
   }
 
   .card-grid,
-  .form-grid {
+  .form-grid,
+  .detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .location-details-header {
+    align-items: stretch;
+    flex-direction: column;
   }
 }
 
