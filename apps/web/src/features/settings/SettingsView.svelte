@@ -28,10 +28,10 @@
 
     try {
       settings = await pedalyticsApi.updateSettings(input);
-      saved = "Settings saved.";
+      saved = "✅ Settings saved.";
       error = "";
     } catch (caught) {
-      error = caught instanceof Error ? caught.message : "Settings could not be saved";
+      error = caught instanceof Error ? caught.message : "❌ Settings could not be saved";
       saved = "";
     }
   }

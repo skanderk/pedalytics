@@ -9,7 +9,7 @@
   let rides = $state<Ride[]>([]);
   let locations = $state<Location[]>([]);
   let settings = $state<AppSettings | null>(null);
-  let editing = $state<Ride | null>(null);
+  let maybeEditedRide = $state<Ride | null>(null);
   let showForm = $state(false);
   let error = $state("");
 
@@ -21,13 +21,13 @@
 
   async function save(input: RideInput) {
     try {
-      if (editing) await pedalyticsApi.updateRide(editing.id, input);
+      if (maybeEditedRide) await pedalyticsApi.updateRide(maybeEditedRide.id, input);
       else await pedalyticsApi.createRide(input);
       showForm = false;
-      editing = null;
+      maybeEditedRide = null;
       await load();
     } catch (caught) {
-      error = caught instanceof Error ? caught.message : "Ride could not be saved";
+      error = caught instanceof Error ? caught.message : "❌ Ride could not be saved";
     }
   }
 
@@ -44,13 +44,13 @@
     <h1>Rides</h1>
     <p class="muted">Manual entries for completed round trips.</p>
   </div>
-  <button class="button" onclick={() => { editing = null; showForm = true; }}><Plus size={18} />New ride</button>
+  <button class="button" onclick={() => { maybeEditedRide = null; showForm = true; }}><Plus size={18} />New ride</button>
 </header>
 
 {#if error}<div class="panel">{error}</div>{/if}
 {#if showForm}
-  {#key editing?.id ?? "new"}
-    <RideForm {locations} {settings} ride={editing} onSave={save} onCancel={() => (showForm = false)} />
+  {#key maybeEditedRide?.id ?? "new"}
+    <RideForm {locations} {settings} ride={maybeEditedRide} onSave={save} onCancel={() => (showForm = false)} />
   {/key}
 {/if}
 
@@ -70,7 +70,7 @@
               <td>{ride.weatherWindDirectionCardinal ?? "n/a"} {ride.weatherWindSpeedKmh ? `${ride.weatherWindSpeedKmh} km/h` : ""}</td>
               <td>{ride.notes ?? ""}</td>
               <td class="actions">
-                <button class="button secondary" title="Edit ride" onclick={() => { editing = ride; showForm = true; }}><Pencil size={16} /></button>
+                <button class="button secondary" title="Edit ride" onclick={() => { maybeEditedRide = ride; showForm = true; }}><Pencil size={16} /></button>
                 <button class="button danger" title="Delete ride" onclick={() => remove(ride.id)}><Trash2 size={16} /></button>
               </td>
             </tr>

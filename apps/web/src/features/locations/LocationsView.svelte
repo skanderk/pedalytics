@@ -5,7 +5,7 @@
   import LocationForm from "./LocationForm.svelte";
 
   let locations = $state<Location[]>([]);
-  let editing = $state<Location | null>(null);
+  let maybeEditedLocation = $state<Location | null>(null);
   let showForm = $state(false);
   let error = $state("");
 
@@ -15,13 +15,13 @@
 
   async function save(input: LocationInput) {
     try {
-      if (editing) await pedalyticsApi.updateLocation(editing.id, input);
+      if (maybeEditedLocation) await pedalyticsApi.updateLocation(maybeEditedLocation.id, input);
       else await pedalyticsApi.createLocation(input);
       showForm = false;
-      editing = null;
+      maybeEditedLocation = null;
       await load();
     } catch (caught) {
-      error = caught instanceof Error ? caught.message : "Location could not be saved";
+      error = caught instanceof Error ? caught.message : "❌ Location could not be saved";
     }
   }
 
@@ -38,13 +38,13 @@
     <h1>Locations</h1>
     <p class="muted">Reusable places for ride departures and destinations.</p>
   </div>
-  <button class="button" onclick={() => { editing = null; showForm = true; }}><Plus size={18} />New location</button>
+  <button class="button" onclick={() => { maybeEditedLocation = null; showForm = true; }}><Plus size={18} />New location</button>
 </header>
 
 {#if error}<div class="panel">{error}</div>{/if}
 {#if showForm}
-  {#key editing?.id ?? "new"}
-    <LocationForm location={editing} onSave={save} onCancel={() => (showForm = false)} />
+  {#key maybeEditedLocation?.id ?? "new"}
+    <LocationForm location={maybeEditedLocation} onSave={save} onCancel={() => (showForm = false)} />
   {/key}
 {/if}
 
@@ -60,7 +60,7 @@
             <td>{[location.city, location.provinceState].filter(Boolean).join(", ")}</td>
             <td>{location.latitude ?? "n/a"}, {location.longitude ?? "n/a"}</td>
             <td class="actions">
-              <button class="button secondary" title="Edit location" onclick={() => { editing = location; showForm = true; }}><Pencil size={16} /></button>
+              <button class="button secondary" title="Edit location" onclick={() => { maybeEditedLocation = location; showForm = true; }}><Pencil size={16} /></button>
               <button class="button danger" title="Delete location" onclick={() => remove(location.id)}><Trash2 size={16} /></button>
             </td>
           </tr>
