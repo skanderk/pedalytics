@@ -121,8 +121,10 @@
     <table>
       <thead><tr><th>Name</th><th>Address</th><th>City</th><th>Coordinates</th><th></th></tr></thead>
       <tbody>
-        {#each locations as location}
+        {#each locations as location, index}
           <tr
+            class:odd-location-row={index % 2 === 0}
+            class:even-location-row={index % 2 === 1}
             class:selected-row={selectedLocationId === location.id}
             class="clickable-row"
             role="button"

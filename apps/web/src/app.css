@@ -388,6 +388,14 @@ th {
   cursor: pointer;
 }
 
+.odd-location-row {
+  background: #ffffff;
+}
+
+.even-location-row {
+  background: #f8fbf6;
+}
+
 .clickable-row:hover,
 .selected-row {
   background: #f4f8f2;
