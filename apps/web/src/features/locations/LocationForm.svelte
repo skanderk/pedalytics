@@ -3,10 +3,12 @@
 
   let {
     location = null,
+    error = "",
     onSave,
     onCancel
   }: {
     location?: Location | null;
+    error?: string;
     onSave: (input: LocationInput) => void;
     onCancel: () => void;
   } = $props();
@@ -66,6 +68,9 @@
 </script>
 
 <form class="panel form-grid" onsubmit={submit}>
+  {#if error}
+    <div class="form-error full" role="alert">{error}</div>
+  {/if}
   <label>Name<input name="name" value={location?.name ?? ""} required /></label>
   <label>Address<input name="address" value={location?.address ?? ""} /></label>
   <label>City<input name="city" value={location?.city ?? ""} required /></label>

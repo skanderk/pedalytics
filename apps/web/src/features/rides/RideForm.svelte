@@ -6,12 +6,14 @@
     ride = null,
     locations,
     settings = null,
+    error = "",
     onSave,
     onCancel
   }: {
     ride?: Ride | null;
     locations: Location[];
     settings?: AppSettings | null;
+    error?: string;
     onSave: (input: RideInput) => void;
     onCancel: () => void;
   } = $props();
@@ -57,6 +59,9 @@
 </script>
 
 <form class="panel form-grid" onsubmit={submit}>
+  {#if error}
+    <div class="form-error full" role="alert">{error}</div>
+  {/if}
   <label>Ride date<input name="rideDate" type="date" max={today} value={ride?.rideDate ?? today} required /></label>
   <label>Distance km<input name="distanceKm" type="number" min="0.1" step="0.1" bind:value={distanceKm} required /></label>
   <label>Max speed km/h<input name="maxSpeedKmh" type="number" min="0.1" step="0.1" value={ride?.maxSpeedKmh ?? ""} /></label>

@@ -12,28 +12,52 @@
   let maybeEditedRide = $state<Ride | null>(null);
   let showForm = $state(false);
   let error = $state("");
+  let saveError = $state("");
 
   const locationName = (id: number | null) => locations.find((location) => location.id === id)?.name ?? "Unassigned";
 
   async function load() {
-    [rides, locations, settings] = await Promise.all([pedalyticsApi.listRides(), pedalyticsApi.listLocations(), pedalyticsApi.getSettings()]);
+    try {
+      error = "";
+      [rides, locations, settings] = await Promise.all([pedalyticsApi.listRides(), pedalyticsApi.listLocations(), pedalyticsApi.getSettings()]);
+    } catch (caught) {
+      error = caught instanceof Error ? caught.message : "Rides could not be loaded";
+    }
   }
 
   async function save(input: RideInput) {
     try {
+      saveError = "";
       if (maybeEditedRide) await pedalyticsApi.updateRide(maybeEditedRide.id, input);
       else await pedalyticsApi.createRide(input);
       showForm = false;
       maybeEditedRide = null;
       await load();
     } catch (caught) {
-      error = caught instanceof Error ? caught.message : "❌ Ride could not be saved";
+      saveError = caught instanceof Error ? caught.message : "Ride could not be saved";
     }
   }
 
   async function remove(id: number) {
-    await pedalyticsApi.deleteRide(id);
-    await load();
+    try {
+      error = "";
+      await pedalyticsApi.deleteRide(id);
+      await load();
+    } catch (caught) {
+      error = caught instanceof Error ? caught.message : "Ride could not be deleted";
+    }
+  }
+
+  function openCreateForm() {
+    maybeEditedRide = null;
+    saveError = "";
+    showForm = true;
+  }
+
+  function openEditForm(ride: Ride) {
+    maybeEditedRide = ride;
+    saveError = "";
+    showForm = true;
   }
 
   onMount(load);
@@ -44,13 +68,13 @@
     <h1>Rides</h1>
     <p class="muted">Manual entries for completed round trips.</p>
   </div>
-  <button class="button" onclick={() => { maybeEditedRide = null; showForm = true; }}><Plus size={18} />New ride</button>
+  <button class="button" onclick={openCreateForm}><Plus size={18} />New ride</button>
 </header>
 
 {#if error}<div class="panel">{error}</div>{/if}
 {#if showForm}
   {#key maybeEditedRide?.id ?? "new"}
-    <RideForm {locations} {settings} ride={maybeEditedRide} onSave={save} onCancel={() => (showForm = false)} />
+    <RideForm {locations} {settings} ride={maybeEditedRide} error={saveError} onSave={save} onCancel={() => (showForm = false)} />
   {/key}
 {/if}
 
@@ -70,7 +94,7 @@
               <td>{ride.weatherWindDirectionCardinal ?? "n/a"} {ride.weatherWindSpeedKmh ? `${ride.weatherWindSpeedKmh} km/h` : ""}</td>
               <td>{ride.notes ?? ""}</td>
               <td class="actions">
-                <button class="button secondary" title="Edit ride" onclick={() => { maybeEditedRide = ride; showForm = true; }}><Pencil size={16} /></button>
+                <button class="button secondary" title="Edit ride" onclick={() => openEditForm(ride)}><Pencil size={16} /></button>
                 <button class="button danger" title="Delete ride" onclick={() => remove(ride.id)}><Trash2 size={16} /></button>
               </td>
             </tr>

@@ -8,26 +8,50 @@
   let maybeEditedLocation = $state<Location | null>(null);
   let showForm = $state(false);
   let error = $state("");
+  let saveError = $state("");
 
   async function load() {
-    locations = await pedalyticsApi.listLocations();
+    try {
+      error = "";
+      locations = await pedalyticsApi.listLocations();
+    } catch (caught) {
+      error = caught instanceof Error ? caught.message : "Locations could not be loaded";
+    }
   }
 
   async function save(input: LocationInput) {
     try {
+      saveError = "";
       if (maybeEditedLocation) await pedalyticsApi.updateLocation(maybeEditedLocation.id, input);
       else await pedalyticsApi.createLocation(input);
       showForm = false;
       maybeEditedLocation = null;
       await load();
     } catch (caught) {
-      error = caught instanceof Error ? caught.message : "❌ Location could not be saved";
+      saveError = caught instanceof Error ? caught.message : "Location could not be saved";
     }
   }
 
   async function remove(id: number) {
-    await pedalyticsApi.deleteLocation(id);
-    await load();
+    try {
+      error = "";
+      await pedalyticsApi.deleteLocation(id);
+      await load();
+    } catch (caught) {
+      error = caught instanceof Error ? caught.message : "Location could not be deleted";
+    }
+  }
+
+  function openCreateForm() {
+    maybeEditedLocation = null;
+    saveError = "";
+    showForm = true;
+  }
+
+  function openEditForm(location: Location) {
+    maybeEditedLocation = location;
+    saveError = "";
+    showForm = true;
   }
 
   onMount(load);
@@ -38,13 +62,13 @@
     <h1>Locations</h1>
     <p class="muted">Reusable places for ride departures and destinations.</p>
   </div>
-  <button class="button" onclick={() => { maybeEditedLocation = null; showForm = true; }}><Plus size={18} />New location</button>
+  <button class="button" onclick={openCreateForm}><Plus size={18} />New location</button>
 </header>
 
 {#if error}<div class="panel">{error}</div>{/if}
 {#if showForm}
   {#key maybeEditedLocation?.id ?? "new"}
-    <LocationForm location={maybeEditedLocation} onSave={save} onCancel={() => (showForm = false)} />
+    <LocationForm location={maybeEditedLocation} error={saveError} onSave={save} onCancel={() => (showForm = false)} />
   {/key}
 {/if}
 
@@ -60,7 +84,7 @@
             <td>{[location.city, location.provinceState].filter(Boolean).join(", ")}</td>
             <td>{location.latitude ?? "n/a"}, {location.longitude ?? "n/a"}</td>
             <td class="actions">
-              <button class="button secondary" title="Edit location" onclick={() => { maybeEditedLocation = location; showForm = true; }}><Pencil size={16} /></button>
+              <button class="button secondary" title="Edit location" onclick={() => openEditForm(location)}><Pencil size={16} /></button>
               <button class="button danger" title="Delete location" onclick={() => remove(location.id)}><Trash2 size={16} /></button>
             </td>
           </tr>
