@@ -396,6 +396,14 @@ th {
   background: #f8fbf6;
 }
 
+.odd-ride-row {
+  background: #ffffff;
+}
+
+.even-ride-row {
+  background: #f8fbf6;
+}
+
 .clickable-row:hover,
 .selected-row {
   background: #f4f8f2;
@@ -411,7 +419,8 @@ th {
   background: #f4f8f2;
 }
 
-.location-details {
+.location-details,
+.ride-details {
   display: grid;
   gap: 16px;
   padding: 18px;
@@ -420,14 +429,16 @@ th {
   background: #ffffff;
 }
 
-.location-details-header {
+.location-details-header,
+.record-details-header {
   display: flex;
   align-items: start;
   justify-content: space-between;
   gap: 16px;
 }
 
-.location-details-header h2 {
+.location-details-header h2,
+.record-details-header h2 {
   margin-bottom: 4px;
   font-size: 1.4rem;
 }
@@ -508,7 +519,8 @@ td.actions-cell {
     grid-template-columns: 1fr;
   }
 
-  .location-details-header {
+  .location-details-header,
+  .record-details-header {
     align-items: stretch;
     flex-direction: column;
   }

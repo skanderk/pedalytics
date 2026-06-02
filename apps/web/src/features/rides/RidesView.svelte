@@ -1,25 +1,31 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Plus, Pencil, Trash2 } from "@lucide/svelte";
+  import { Eye, Plus, Pencil, Trash2 } from "@lucide/svelte";
   import { pedalyticsApi, type AppSettings, type Location, type Ride, type RideInput } from "../../lib/api/pedalyticsApi";
   import { formatDate } from "../../lib/formatting/date";
   import { formatKilometers, formatOptionalKilometersPerHour } from "../../lib/formatting/distance";
   import RideForm from "./RideForm.svelte";
+  import RideRouteMap from "./RideRouteMap.svelte";
 
   let rides = $state<Ride[]>([]);
   let locations = $state<Location[]>([]);
   let settings = $state<AppSettings | null>(null);
   let maybeEditedRide = $state<Ride | null>(null);
+  let selectedRideId = $state<number | null>(null);
   let showForm = $state(false);
   let error = $state("");
   let saveError = $state("");
 
   const locationName = (id: number | null) => locations.find((location) => location.id === id)?.name ?? "Unassigned";
+  const selectedRide = $derived(rides.find((ride) => ride.id === selectedRideId) ?? null);
 
   async function load() {
     try {
       error = "";
       [rides, locations, settings] = await Promise.all([pedalyticsApi.listRides(), pedalyticsApi.listLocations(), pedalyticsApi.getSettings()]);
+      if (selectedRideId && !rides.some((ride) => ride.id === selectedRideId)) {
+        selectedRideId = null;
+      }
     } catch (caught) {
       error = caught instanceof Error ? caught.message : "Rides could not be loaded";
     }
@@ -28,8 +34,10 @@
   async function save(input: RideInput) {
     try {
       saveError = "";
-      if (maybeEditedRide) await pedalyticsApi.updateRide(maybeEditedRide.id, input);
-      else await pedalyticsApi.createRide(input);
+      const ride = maybeEditedRide
+        ? await pedalyticsApi.updateRide(maybeEditedRide.id, input)
+        : await pedalyticsApi.createRide(input);
+      selectedRideId = ride.id;
       showForm = false;
       maybeEditedRide = null;
       await load();
@@ -42,6 +50,7 @@
     try {
       error = "";
       await pedalyticsApi.deleteRide(id);
+      if (selectedRideId === id) selectedRideId = null;
       await load();
     } catch (caught) {
       error = caught instanceof Error ? caught.message : "Ride could not be deleted";
@@ -56,8 +65,38 @@
 
   function openEditForm(ride: Ride) {
     maybeEditedRide = ride;
+    selectedRideId = ride.id;
     saveError = "";
     showForm = true;
+  }
+
+  function toggleDetails(ride: Ride) {
+    selectedRideId = selectedRideId === ride.id ? null : ride.id;
+    showForm = false;
+    saveError = "";
+  }
+
+  function rowKeydown(event: KeyboardEvent, ride: Ride) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    toggleDetails(ride);
+  }
+
+  function stopRowClick(event: MouseEvent) {
+    event.stopPropagation();
+  }
+
+  function locationById(id: number | null) {
+    return locations.find((location) => location.id === id) ?? null;
+  }
+
+  function valueOrEmpty(value: string | number | null) {
+    return value ?? "n/a";
+  }
+
+  function windText(ride: Ride) {
+    if (!ride.weatherWindDirectionCardinal && ride.weatherWindSpeedKmh == null) return "n/a";
+    return [ride.weatherWindDirectionCardinal, ride.weatherWindSpeedKmh == null ? null : `${ride.weatherWindSpeedKmh} km/h`].filter(Boolean).join(" ");
   }
 
   onMount(load);
@@ -82,22 +121,64 @@
   {#if rides.length}
     <div class="table-scroll">
       <table>
-        <thead><tr><th>Date</th><th>Distance</th><th>Max speed</th><th>Average speed</th><th>Route</th><th>Wind</th><th>Notes</th><th></th></tr></thead>
+        <thead><tr><th>Date</th><th>Distance</th><th>Max speed</th><th>Average speed</th><th>Route</th><th>Wind</th><th>Notes</th><th class="actions-cell"></th></tr></thead>
         <tbody>
-          {#each rides as ride}
-            <tr>
+          {#each rides as ride, index}
+            <tr
+              class:odd-ride-row={index % 2 === 0}
+              class:even-ride-row={index % 2 === 1}
+              class:selected-row={selectedRideId === ride.id}
+              class="clickable-row"
+              role="button"
+              tabindex="0"
+              aria-expanded={selectedRideId === ride.id}
+              aria-controls={`ride-details-${ride.id}`}
+              onclick={() => toggleDetails(ride)}
+              onkeydown={(event) => rowKeydown(event, ride)}
+            >
               <td>{formatDate(ride.rideDate)}</td>
               <td>{formatKilometers(ride.distanceKm)}</td>
               <td>{formatOptionalKilometersPerHour(ride.maxSpeedKmh)}</td>
               <td>{formatOptionalKilometersPerHour(ride.averageSpeedKmh)}</td>
               <td>{locationName(ride.departureLocationId)} to {locationName(ride.destinationLocationId)}</td>
-              <td>{ride.weatherWindDirectionCardinal ?? "n/a"} {ride.weatherWindSpeedKmh ? `${ride.weatherWindSpeedKmh} km/h` : ""}</td>
+              <td>{windText(ride)}</td>
               <td>{ride.notes ?? ""}</td>
-              <td class="actions">
-                <button class="button secondary" title="Edit ride" onclick={() => openEditForm(ride)}><Pencil size={16} /></button>
-                <button class="button danger" title="Delete ride" onclick={() => remove(ride.id)}><Trash2 size={16} /></button>
+              <td class="actions actions-cell" onclick={stopRowClick}>
+                <button class="button secondary" title="View ride details" aria-label={`View details for ride on ${formatDate(ride.rideDate)}`} onclick={() => toggleDetails(ride)}><Eye size={16} /></button>
+                <button class="button secondary" title="Edit ride" aria-label={`Edit ride on ${formatDate(ride.rideDate)}`} onclick={() => openEditForm(ride)}><Pencil size={16} /></button>
+                <button class="button danger" title="Delete ride" aria-label={`Delete ride on ${formatDate(ride.rideDate)}`} onclick={() => remove(ride.id)}><Trash2 size={16} /></button>
               </td>
             </tr>
+            {#if selectedRide?.id === ride.id}
+              <tr class="details-row">
+                <td colspan="8">
+                  <section class="ride-details" id={`ride-details-${ride.id}`} aria-label={`Details for ride on ${formatDate(ride.rideDate)}`}>
+                    <div class="record-details-header">
+                      <div>
+                        <h2>{formatDate(ride.rideDate)}</h2>
+                        <p class="muted">{locationName(ride.departureLocationId)} to {locationName(ride.destinationLocationId)}</p>
+                      </div>
+                      <div class="actions">
+                        <button class="button secondary" type="button" onclick={() => openEditForm(ride)}><Pencil size={16} />Edit</button>
+                      </div>
+                    </div>
+                    <dl class="detail-grid">
+                      <div><dt>Date</dt><dd>{formatDate(ride.rideDate)}</dd></div>
+                      <div><dt>Distance</dt><dd>{formatKilometers(ride.distanceKm)}</dd></div>
+                      <div><dt>Max speed</dt><dd>{formatOptionalKilometersPerHour(ride.maxSpeedKmh)}</dd></div>
+                      <div><dt>Average speed</dt><dd>{formatOptionalKilometersPerHour(ride.averageSpeedKmh)}</dd></div>
+                      <div><dt>Start time</dt><dd>{valueOrEmpty(ride.startedAt)}</dd></div>
+                      <div><dt>End time</dt><dd>{valueOrEmpty(ride.endedAt)}</dd></div>
+                      <div><dt>Departure</dt><dd>{locationName(ride.departureLocationId)}</dd></div>
+                      <div><dt>Destination</dt><dd>{locationName(ride.destinationLocationId)}</dd></div>
+                      <div><dt>Wind</dt><dd>{windText(ride)}</dd></div>
+                      <div><dt>Notes</dt><dd>{valueOrEmpty(ride.notes)}</dd></div>
+                    </dl>
+                    <RideRouteMap departure={locationById(ride.departureLocationId)} destination={locationById(ride.destinationLocationId)} distanceKm={ride.distanceKm} />
+                  </section>
+                </td>
+              </tr>
+            {/if}
           {/each}
         </tbody>
       </table>
