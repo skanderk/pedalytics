@@ -9,7 +9,7 @@ export async function registerRideRoutes(app: FastifyInstance): Promise<void> {
   // Wire RideControlller.
   const repository = new RideRepository(app.db);
   const locationRepository = new LocationRepository(app.db);
-  const weatherProvider = new OpenMeteoWeatherProvider();
+  const weatherProvider = app.weatherProvider ?? new OpenMeteoWeatherProvider();
   const service = new RideService(repository, locationRepository, weatherProvider);
   const controller = new RideController(service);
 

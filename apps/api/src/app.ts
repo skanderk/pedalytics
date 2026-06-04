@@ -7,11 +7,18 @@ import { registerLocationRoutes } from "./modules/locations/location.routes.js";
 import { registerRideRoutes } from "./modules/rides/ride.routes.js";
 import { registerSettingsRoutes } from "./modules/settings/settings.routes.js";
 import { registerWeatherRoutes } from "./modules/weather/weather.routes.js";
+import type { WeatherProvider } from "./modules/weather/weather.service.js";
 
 declare module "fastify" {
   interface FastifyInstance {
     db: PedalyticsDatabase;
+    weatherProvider?: WeatherProvider;
   }
+}
+
+interface BuildAppOptions {
+  logger?: boolean;
+  weatherProvider?: WeatherProvider;
 }
 
 function hasClientErrorStatus(error: unknown): error is { message: string; statusCode: number } {
@@ -31,11 +38,14 @@ function hasClientErrorStatus(error: unknown): error is { message: string; statu
  * Creates a Fastify aplication. Configures the database connection, registers routes and error handlers.
  * @returns A promise resolving to the configured Fastify instance.
  */
-export async function buildApp() {
-  const app = Fastify({ logger: true });
+export async function buildApp(options: BuildAppOptions = {}) {
+  const app = Fastify({ logger: options.logger ?? true });
   const { db, sqlite } = createDatabaseConnection();
 
   app.decorate("db", db);
+  if (options.weatherProvider) {
+    app.decorate("weatherProvider", options.weatherProvider);
+  }
   app.addHook("onClose", async () => sqlite.close());
   await app.register(cors, {
     origin: true,

@@ -3,6 +3,7 @@ dist
 .svelte-kit
 coverage
 *.db
+!apps/api/data/pedalytics.demo.db
 *.db-shm
 *.db-wal
 .env

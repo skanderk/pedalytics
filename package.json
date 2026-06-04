@@ -10,10 +10,12 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace @pedalytics/api & npm run dev --workspace @pedalytics/web",
+    "dev:demo": "npm run dev:demo --workspace @pedalytics/api & npm run dev --workspace @pedalytics/web",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces --if-present",
     "db:migrate": "npm run db:migrate --workspace @pedalytics/api",
-    "db:seed": "npm run db:seed --workspace @pedalytics/api"
+    "db:seed": "npm run db:seed --workspace @pedalytics/api",
+    "db:demo:populate": "npm run db:demo:populate --workspace @pedalytics/api"
   },
   "engines": {
     "node": ">=20"
