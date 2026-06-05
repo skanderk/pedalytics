@@ -1,4 +1,4 @@
-import type { LocationCreateInput, LocationUpdateInput } from "./location.schema.js";
+import type { LocationDetails } from "./location.domain.js";
 import type { LocationRepository } from "./location.repository.js";
 
 export class LocationService {
@@ -16,11 +16,11 @@ export class LocationService {
     return location;
   }
 
-  createLocation(input: LocationCreateInput) {
+  createLocation(input: LocationDetails) {
     return this.locations.create(input);
   }
 
-  updateLocation(id: number, input: LocationUpdateInput) {
+  updateLocation(id: number, input: LocationDetails) {
     const location = this.locations.update(id, input);
     if (!location) {
       throw new Error("LOCATION_NOT_FOUND");

@@ -1,10 +1,12 @@
 import type { FastifyInstance } from "fastify";
 import { LocationController } from "./location.controller.js";
+import { LocationPersistenceMapper } from "./location.persistence-mapper.js";
 import { LocationRepository } from "./location.repository.js";
 import { LocationService } from "./location.service.js";
 
 export async function registerLocationRoutes(app: FastifyInstance) {
-  const repository = new LocationRepository(app.db);
+  const mapper = new LocationPersistenceMapper();
+  const repository = new LocationRepository(app.db, mapper);
   const service = new LocationService(repository);
   const controller = new LocationController(service);
 

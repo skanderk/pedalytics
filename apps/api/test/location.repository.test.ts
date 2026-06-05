@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createDatabaseConnection } from "../src/db/client.js";
 import { runMigrations } from "../src/db/migrate.js";
+import { LocationPersistenceMapper } from "../src/modules/locations/location.persistence-mapper.js";
 import { LocationRepository } from "../src/modules/locations/location.repository.js";
 
 let tempDir: string | undefined;
@@ -21,7 +22,7 @@ describe("LocationRepository", () => {
     const databasePath = join(tempDir, "test.db");
     runMigrations(databasePath);
     const { db, sqlite } = createDatabaseConnection(databasePath);
-    const repository = new LocationRepository(db);
+    const repository = new LocationRepository(db, new LocationPersistenceMapper());
 
     const created = repository.create({
       name: "Cafe",

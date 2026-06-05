@@ -4,7 +4,8 @@ import type { FastifyInstance } from "fastify";
 import { createDatabaseConnection } from "../client.js";
 import { runMigrations } from "../migrate.js";
 import { buildApp } from "../../app.js";
-import type { LocationRecord, RideRecord } from "../schema.js";
+import type { RideRecord } from "../schema.js";
+import type { Location } from "../../modules/locations/location.domain.js";
 import type { WeatherPreviewInput, WeatherSnapshot } from "../../modules/weather/weather.schema.js";
 import { type WeatherProvider, windDirectionToCardinal } from "../../modules/weather/weather.service.js";
 
@@ -385,8 +386,8 @@ function round(value: number, decimals = 1) {
 function buildRide(
   rng: SeededRandom,
   rideDate: string,
-  home: LocationRecord,
-  destinations: LocationRecord[]
+  home: Location,
+  destinations: Location[]
 ): GeneratedRideInput {
   const destination = rng.choice(destinations);
   const destinationInput = destinationLocations.find((location) => location.name === destination.name)!;
@@ -432,11 +433,11 @@ async function populateDemoDatabase(databasePath: string) {
 
   const app = await buildApp({ logger: false, weatherProvider: new YearlyHistoricalWeatherProvider() });
   try {
-    const home = await injectJson<LocationRecord>(app, "POST", "/api/locations", homeLocation);
-    const destinations: LocationRecord[] = [];
+    const home = await injectJson<Location>(app, "POST", "/api/locations", homeLocation);
+    const destinations: Location[] = [];
 
     for (const destination of destinationLocations) {
-      destinations.push(await injectJson<LocationRecord>(app, "POST", "/api/locations", destination));
+      destinations.push(await injectJson<Location>(app, "POST", "/api/locations", destination));
     }
 
     await injectJson(app, "PUT", "/api/settings", {
