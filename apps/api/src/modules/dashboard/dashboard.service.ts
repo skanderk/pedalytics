@@ -1,4 +1,4 @@
-import type { RideRecord } from "../../db/schema.js";
+import type { Ride } from "../rides/ride.domain.js";
 import type { DashboardQuery } from "./dashboard.schema.js";
 
 export interface DashboardStats {
@@ -9,7 +9,7 @@ export interface DashboardStats {
   distanceByDay: Array<{ rideDate: string; distanceKm: number }>;
 }
 
-export function aggregateDashboardStats(rides: RideRecord[], query: DashboardQuery): DashboardStats {
+export function aggregateDashboardStats(rides: Ride[], query: DashboardQuery): DashboardStats {
   const filtered = rides.filter((ride) => {
     const [year, month] = ride.rideDate.split("-").map(Number);
     return (!query.year || year === query.year) && (!query.month || month === query.month);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { RideRecord } from "../src/db/schema.js";
 import { aggregateDashboardStats } from "../src/modules/dashboard/dashboard.service.js";
+import { Ride } from "../src/modules/rides/ride.domain.js";
 
 const baseRide = {
   id: 1,
@@ -17,19 +17,18 @@ const baseRide = {
   weatherWindDirectionDegrees: null,
   weatherWindDirectionCardinal: null,
   weatherCode: null,
-  weatherFetchedAt: null,
-  createdAt: "2026-01-01T00:00:00.000Z",
-  updatedAt: "2026-01-01T00:00:00.000Z"
+  maxSpeedKmh: null,
+  averageSpeedKmh: null
 };
 
 describe("aggregateDashboardStats", () => {
   it("filters by month and groups distance by day", () => {
     const stats = aggregateDashboardStats(
       [
-        { ...baseRide, id: 1, rideDate: "2026-04-02", distanceKm: 10 },
-        { ...baseRide, id: 2, rideDate: "2026-04-02", distanceKm: 12.25 },
-        { ...baseRide, id: 3, rideDate: "2026-05-02", distanceKm: 30 }
-      ] satisfies RideRecord[],
+        new Ride({ ...baseRide, id: 1, rideDate: "2026-04-02", distanceKm: 10 }),
+        new Ride({ ...baseRide, id: 2, rideDate: "2026-04-02", distanceKm: 12.25 }),
+        new Ride({ ...baseRide, id: 3, rideDate: "2026-05-02", distanceKm: 30 })
+      ],
       { year: 2026, month: 4 }
     );
 

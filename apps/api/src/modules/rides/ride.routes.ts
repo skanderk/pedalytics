@@ -3,12 +3,13 @@ import { LocationPersistenceMapper } from "../locations/location.persistence-map
 import { LocationRepository } from "../locations/location.repository.js";
 import { OpenMeteoWeatherProvider } from "../weather/weather.service.js";
 import { RideController } from "./ride.controller.js";
+import { RidePersistenceMapper } from "./ride.persistence-mapper.js";
 import { RideRepository } from "./ride.repository.js";
 import { RideService } from "./ride.service.js";
 
 export async function registerRideRoutes(app: FastifyInstance): Promise<void> {
-  // Wire RideControlller.
-  const repository = new RideRepository(app.db);
+  const rideMapper = new RidePersistenceMapper();
+  const repository = new RideRepository(app.db, rideMapper);
   const locationMapper = new LocationPersistenceMapper();
   const locationRepository = new LocationRepository(app.db, locationMapper);
   const weatherProvider = app.weatherProvider ?? new OpenMeteoWeatherProvider();

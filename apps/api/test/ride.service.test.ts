@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { NewRideRecord, RideRecord } from "../src/db/schema.js";
 import type { LocationRepository } from "../src/modules/locations/location.repository.js";
+import { Ride, type RideDetailsWithWeather } from "../src/modules/rides/ride.domain.js";
 import type { RideRepository } from "../src/modules/rides/ride.repository.js";
 import { RideService } from "../src/modules/rides/ride.service.js";
 import type { WeatherProvider } from "../src/modules/weather/weather.service.js";
 
-const baseRide = {
+const baseRide = new Ride({
   id: 1,
   rideDate: "2026-05-01",
   startedAt: "08:00",
@@ -23,20 +23,17 @@ const baseRide = {
   weatherWindSpeedKmh: null,
   weatherWindDirectionDegrees: null,
   weatherWindDirectionCardinal: null,
-  weatherCode: null,
-  weatherFetchedAt: null,
-  createdAt: "2026-05-01T00:00:00.000Z",
-  updatedAt: "2026-05-01T00:00:00.000Z"
-} satisfies RideRecord;
+  weatherCode: null
+});
 
-function buildService(existingRides: RideRecord[]) {
+function buildService(existingRides: Ride[]) {
   const repository = {
     list: () => existingRides,
     listAscending: () => existingRides,
     findById: (id: number) => existingRides.find((ride) => ride.id === id),
     listByRideDate: (rideDate: string) => existingRides.filter((ride) => ride.rideDate === rideDate),
-    create: (input: NewRideRecord) => ({ ...baseRide, ...input, id: 99 }),
-    update: (id: number, input: NewRideRecord) => ({ ...baseRide, ...input, id }),
+    create: (input: RideDetailsWithWeather) => new Ride({ ...baseRide, ...input, id: 99 }),
+    update: (id: number, input: RideDetailsWithWeather) => new Ride({ ...baseRide, ...input, id }),
     delete: () => true
   } as unknown as RideRepository;
 
@@ -138,7 +135,7 @@ describe("RideService", () => {
   it("rejects updating a ride to overlap another ride", async () => {
     const service = buildService([
       baseRide,
-      { ...baseRide, id: 2, startedAt: "10:00", endedAt: "11:00" }
+      new Ride({ ...baseRide, id: 2, startedAt: "10:00", endedAt: "11:00" })
     ]);
 
     await expect(

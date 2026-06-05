@@ -1,6 +1,6 @@
 import type { LocationRepository } from "../locations/location.repository.js";
 import type { WeatherProvider } from "../weather/weather.service.js";
-import type { RideCreateInput, RideUpdateInput } from "./ride.schema.js";
+import type { Ride, RideDetails, RideDetailsWithWeather } from "./ride.domain.js";
 import type { RideRepository } from "./ride.repository.js";
 
 export class RideService {
@@ -10,11 +10,11 @@ export class RideService {
     private readonly weather: WeatherProvider
   ) {}
 
-  listRides() {
+  listRides(): Ride[] {
     return this.rides.list();
   }
 
-  getRide(id: number) {
+  getRide(id: number): Ride {
     const ride = this.rides.findById(id);
     if (!ride) {
       throw new Error("RIDE_NOT_FOUND");
@@ -22,44 +22,44 @@ export class RideService {
     return ride;
   }
 
-  async createRide(input: RideCreateInput) {
-    this.assertDoesNotOverlap(input);
-    return this.rides.create(await this.withWeatherSnapshot(input));
+  async createRide(rideDetails: RideDetails): Promise<Ride> {
+    this.assertDoesNotOverlap(rideDetails);
+    return this.rides.create(await this.withWeatherSnapshot(rideDetails));
   }
 
-  async updateRide(id: number, input: RideUpdateInput) {
+  async updateRide(id: number, rideDetails: RideDetails): Promise<Ride> {
     if (!this.rides.findById(id)) {
       throw new Error("RIDE_NOT_FOUND");
     }
 
-    this.assertDoesNotOverlap(input, id);
-    const ride = this.rides.update(id, await this.withWeatherSnapshot(input));
+    this.assertDoesNotOverlap(rideDetails, id);
+    const ride = this.rides.update(id, await this.withWeatherSnapshot(rideDetails));
     if (!ride) {
       throw new Error("RIDE_NOT_FOUND");
     }
     return ride;
   }
 
-  deleteRide(id: number) {
+  async deleteRide(id: number): Promise<void> {
     if (!this.rides.delete(id)) {
       throw new Error("RIDE_NOT_FOUND");
     }
   }
 
-  private assertDoesNotOverlap(input: RideCreateInput | RideUpdateInput, currentRideId?: number) {
-    if (!input.startedAt || !input.endedAt) {
+  private assertDoesNotOverlap(rideDetails: RideDetails, currentRideId?: number) {
+    if (!rideDetails.startedAt || !rideDetails.endedAt) {
       return;
     }
 
     const overlappingRide = this.rides
-      .listByRideDate(input.rideDate)
+      .listByRideDate(rideDetails.rideDate)
       .find(
         (ride) =>
           ride.id !== currentRideId &&
           ride.startedAt != null &&
           ride.endedAt != null &&
-          input.startedAt! < ride.endedAt &&
-          ride.startedAt < input.endedAt!
+          rideDetails.startedAt! < ride.endedAt &&
+          ride.startedAt < rideDetails.endedAt!
       );
 
     if (overlappingRide) {
@@ -67,20 +67,20 @@ export class RideService {
     }
   }
 
-  private async withWeatherSnapshot(input: RideCreateInput | RideUpdateInput) {
-    const departureLocation = input.departureLocationId ? this.locations.findById(input.departureLocationId) : undefined;
+  private async withWeatherSnapshot(rideDetails: RideDetails): Promise<RideDetailsWithWeather> {
+    const departureLocation = rideDetails.departureLocationId ? this.locations.findById(rideDetails.departureLocationId) : undefined;
     if (departureLocation?.latitude == null || departureLocation.longitude == null) {
-      return input;
+      return rideDetails;
     }
 
     const weather = await this.weather.getSnapshot({
       latitude: departureLocation.latitude,
       longitude: departureLocation.longitude,
-      rideDate: input.rideDate
+      rideDate: rideDetails.rideDate
     });
 
     return {
-      ...input,
+      ...rideDetails,
       weatherTemperatureCelsius: weather.temperatureCelsius,
       weatherFeelsLikeCelsius: weather.feelsLikeCelsius,
       weatherPrecipitationMm: weather.precipitationMm,

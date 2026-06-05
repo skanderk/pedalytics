@@ -4,8 +4,8 @@ import type { FastifyInstance } from "fastify";
 import { createDatabaseConnection } from "../client.js";
 import { runMigrations } from "../migrate.js";
 import { buildApp } from "../../app.js";
-import type { RideRecord } from "../schema.js";
 import type { Location } from "../../modules/locations/location.domain.js";
+import type { Ride } from "../../modules/rides/ride.domain.js";
 import type { WeatherPreviewInput, WeatherSnapshot } from "../../modules/weather/weather.schema.js";
 import { type WeatherProvider, windDirectionToCardinal } from "../../modules/weather/weather.service.js";
 
@@ -448,7 +448,7 @@ async function populateDemoDatabase(databasePath: string) {
     const rng = new SeededRandom(0x507eda1);
     const rideDates = generateRideDates(rng);
     for (const rideDate of rideDates) {
-      await injectJson<RideRecord>(app, "POST", "/api/rides", buildRide(rng, rideDate, home, destinations));
+      await injectJson<Ride>(app, "POST", "/api/rides", buildRide(rng, rideDate, home, destinations));
     }
   } finally {
     await app.close();
