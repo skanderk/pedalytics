@@ -38,7 +38,9 @@ export interface DashboardStats {
   rideCount: number;
   averageDistanceKm: number;
   longestRideKm: number;
-  distanceByDay: Array<{ rideDate: string; distanceKm: number }>;
+  distanceByDay: Array<{ rideDate: string; distanceKm: number; averageSpeedKmh: number | null; maxSpeedKmh: number | null }>;
+  distanceByMonth: Array<{ month: number; distanceKm: number; averageSpeedKmh: number | null; maxSpeedKmh: number | null }>;
+  distanceByYear: Array<{ year: number; distanceKm: number; averageSpeedKmh: number | null; maxSpeedKmh: number | null }>;
 }
 
 export interface AppSettings {
