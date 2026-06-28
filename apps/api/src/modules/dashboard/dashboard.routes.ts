@@ -1,9 +1,13 @@
 import type { FastifyInstance } from "fastify";
-import { RidePersistenceMapper } from "../rides/ride.persistence-mapper.js";
-import { RideRepository } from "../rides/ride.repository.js";
+import { DashboardRepository } from "./dashboard.repository.js";
 import { DashboardController } from "./dashboard.controller.js";
+import { DashboardService } from "./dashboard.service.js";
 
 export async function registerDashboardRoutes(app: FastifyInstance) {
-  const controller = new DashboardController(new RideRepository(app.db, new RidePersistenceMapper()));
-  app.get("/api/dashboard", controller.get);
+  const repository = new DashboardRepository(app.db);
+  const service = new DashboardService(repository);
+  const controller = new DashboardController(service);
+  app.get("/api/dashboard/daily", controller.daily);
+  app.get("/api/dashboard/monthly", controller.monthly);
+  app.get("/api/dashboard/yearly", controller.yearly);
 }

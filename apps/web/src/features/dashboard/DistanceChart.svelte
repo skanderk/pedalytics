@@ -7,6 +7,9 @@
   interface DistanceChartPoint {
     label: string;
     distanceKm: number;
+    rideCount: number;
+    averageDistanceKm: number;
+    longestRideKm: number;
     averageSpeedKmh: number | null;
     maxSpeedKmh: number | null;
   }
@@ -96,6 +99,12 @@
               label: (item) => {
                 const unit = item.dataset.yAxisID === "speed" ? "km/h" : "km";
                 return `${item.dataset.label}: ${item.formattedValue} ${unit}`;
+              },
+              afterBody: (items) => {
+                const point = points[items[0]?.dataIndex ?? -1];
+                if (!point) return [];
+
+                return [`Rides: ${point.rideCount}`, `Average ride: ${point.averageDistanceKm} km`, `Longest ride: ${point.longestRideKm} km`];
               }
             }
           }

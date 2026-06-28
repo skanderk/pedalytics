@@ -33,14 +33,28 @@ export interface Ride {
   weatherCode: number | null;
 }
 
-export interface DashboardStats {
+export interface DashboardSummary {
   totalDistanceKm: number;
   rideCount: number;
   averageDistanceKm: number;
   longestRideKm: number;
-  distanceByDay: Array<{ rideDate: string; distanceKm: number; averageSpeedKmh: number | null; maxSpeedKmh: number | null }>;
-  distanceByMonth: Array<{ month: number; distanceKm: number; averageSpeedKmh: number | null; maxSpeedKmh: number | null }>;
-  distanceByYear: Array<{ year: number; distanceKm: number; averageSpeedKmh: number | null; maxSpeedKmh: number | null }>;
+}
+
+export interface DashboardBucket extends DashboardSummary {
+  averageSpeedKmh: number | null;
+  maxSpeedKmh: number | null;
+}
+
+export interface DashboardDailyStats extends DashboardSummary {
+  dayMetrics: Array<DashboardBucket & { rideDate: string }>;
+}
+
+export interface DashboardMonthlyStats extends DashboardSummary {
+  monthMetrics: Array<DashboardBucket & { month: number }>;
+}
+
+export interface DashboardYearlyStats extends DashboardSummary {
+  yearMetrics: Array<DashboardBucket & { year: number }>;
 }
 
 export interface AppSettings {
@@ -64,12 +78,18 @@ export type LocationInput = Omit<Location, "id">;
 export type SettingsInput = AppSettings;
 
 export const pedalyticsApi = {
-  getDashboard: (year?: number, month?: number) => {
+  getDailyDashboard: (year: number, month: number) => {
     const params = new URLSearchParams();
-    if (year) params.set("year", String(year));
-    if (month) params.set("month", String(month));
-    return apiRequest<DashboardStats>(`/api/dashboard?${params}`);
+    params.set("year", String(year));
+    params.set("month", String(month));
+    return apiRequest<DashboardDailyStats>(`/api/dashboard/daily?${params}`);
   },
+  getMonthlyDashboard: (year: number) => {
+    const params = new URLSearchParams();
+    params.set("year", String(year));
+    return apiRequest<DashboardMonthlyStats>(`/api/dashboard/monthly?${params}`);
+  },
+  getYearlyDashboard: () => apiRequest<DashboardYearlyStats>("/api/dashboard/yearly"),
   listRides: () => apiRequest<Ride[]>("/api/rides"),
   createRide: (input: RideInput) => apiRequest<Ride>("/api/rides", { method: "POST", body: JSON.stringify(input) }),
   updateRide: (id: number, input: RideInput) => apiRequest<Ride>(`/api/rides/${id}`, { method: "PUT", body: JSON.stringify(input) }),

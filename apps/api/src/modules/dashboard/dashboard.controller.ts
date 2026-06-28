@@ -1,13 +1,21 @@
 import type { FastifyRequest } from "fastify";
-import { dashboardQuerySchema } from "./dashboard.schema.js";
-import { aggregateDashboardStats } from "./dashboard.service.js";
-import type { RideRepository } from "../rides/ride.repository.js";
+import { dashboardDailyQuerySchema, dashboardMonthlyQuerySchema } from "./dashboard.schema.js";
+import { DashboardService } from "./dashboard.service.js";
 
 export class DashboardController {
-  constructor(private readonly rides: RideRepository) {}
+  constructor(private readonly service: DashboardService) {}
 
-  get = async (request: FastifyRequest) => {
-    const query = dashboardQuerySchema.parse(request.query);
-    return aggregateDashboardStats(this.rides.listAscending(), query);
+  daily = async (request: FastifyRequest) => {
+    const query = dashboardDailyQuerySchema.parse(request.query);
+    return this.service.getMonthMetrics(query.year, query.month);
+  };
+
+  monthly = async (request: FastifyRequest) => {
+    const query = dashboardMonthlyQuerySchema.parse(request.query);
+    return this.service.getYearMetrics(query.year);
+  };
+
+  yearly = async () => {
+    return this.service.getAllYearsMetrics();
   };
 }

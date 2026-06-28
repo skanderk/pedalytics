@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { pedalyticsApi, type DashboardStats } from "../../lib/api/pedalyticsApi";
+  import { pedalyticsApi, type DashboardDailyStats, type DashboardMonthlyStats, type DashboardYearlyStats } from "../../lib/api/pedalyticsApi";
   import { formatKilometers } from "../../lib/formatting/distance";
   import DistanceChart from "./DistanceChart.svelte";
 
@@ -9,47 +9,81 @@
   let month = $state(currentDate.getMonth() + 1);
   let showAverageSpeed = $state(true);
   let showMaxSpeed = $state(false);
-  let stats = $state<DashboardStats | null>(null);
+  let dailyStats = $state<DashboardDailyStats | null>(null);
+  let monthlyStats = $state<DashboardMonthlyStats | null>(null);
+  let yearlyStats = $state<DashboardYearlyStats | null>(null);
   let error = $state("");
 
   const months = Array.from({ length: 12 }, (_, index) => ({ value: index + 1, label: new Date(2026, index, 1).toLocaleString(undefined, { month: "long" }) }));
   const shortMonths = Array.from({ length: 12 }, (_, index) => new Date(2026, index, 1).toLocaleString(undefined, { month: "short" }));
   const selectedMonthLabel = $derived(months.find((item) => item.value === month)?.label ?? "Selected month");
   const dailyDistancePoints = $derived(
-    stats?.distanceByDay.map((point) => ({
+    dailyStats?.dayMetrics.map((point) => ({
       label: String(Number(point.rideDate.slice(8, 10))),
-      distanceKm: point.distanceKm,
+      distanceKm: point.totalDistanceKm,
+      rideCount: point.rideCount,
+      averageDistanceKm: point.averageDistanceKm,
+      longestRideKm: point.longestRideKm,
       averageSpeedKmh: point.averageSpeedKmh,
       maxSpeedKmh: point.maxSpeedKmh
     })) ?? []
   );
   const monthlyDistancePoints = $derived(
-    stats?.distanceByMonth.map((point) => ({
+    monthlyStats?.monthMetrics.map((point) => ({
       label: shortMonths[point.month - 1],
-      distanceKm: point.distanceKm,
+      distanceKm: point.totalDistanceKm,
+      rideCount: point.rideCount,
+      averageDistanceKm: point.averageDistanceKm,
+      longestRideKm: point.longestRideKm,
       averageSpeedKmh: point.averageSpeedKmh,
       maxSpeedKmh: point.maxSpeedKmh
     })) ?? []
   );
   const yearlyDistancePoints = $derived(
-    stats?.distanceByYear.map((point) => ({
+    yearlyStats?.yearMetrics.map((point) => ({
       label: String(point.year),
-      distanceKm: point.distanceKm,
+      distanceKm: point.totalDistanceKm,
+      rideCount: point.rideCount,
+      averageDistanceKm: point.averageDistanceKm,
+      longestRideKm: point.longestRideKm,
       averageSpeedKmh: point.averageSpeedKmh,
       maxSpeedKmh: point.maxSpeedKmh
     })) ?? []
   );
 
-  async function loadDashboard() {
+  async function loadDailyStats() {
     try {
       error = "";
-      // TODO - This solution is not optimal. 
-      // All stats are re-loaded even if only the year or month changes. 
-      // We should consider splitting the endpoint into separate endpoints for each bucket (day, month, year).
-      stats = await pedalyticsApi.getDashboard(year, month);
+      dailyStats = await pedalyticsApi.getDailyDashboard(year, month);
     } catch (caught) {
       error = caught instanceof Error ? caught.message : "Dashboard failed to load";
     }
+  }
+
+  async function loadMonthlyStats() {
+    try {
+      error = "";
+      monthlyStats = await pedalyticsApi.getMonthlyDashboard(year);
+    } catch (caught) {
+      error = caught instanceof Error ? caught.message : "Dashboard failed to load";
+    }
+  }
+
+  async function loadYearlyStats() {
+    try {
+      error = "";
+      yearlyStats = await pedalyticsApi.getYearlyDashboard();
+    } catch (caught) {
+      error = caught instanceof Error ? caught.message : "Dashboard failed to load";
+    }
+  }
+
+  async function loadDashboard() {
+    await Promise.all([loadDailyStats(), loadMonthlyStats(), loadYearlyStats()]);
+  }
+
+  async function handleYearChange() {
+    await Promise.all([loadDailyStats(), loadMonthlyStats()]);
   }
 
   onMount(loadDashboard);
@@ -63,11 +97,11 @@
   <div class="toolbar dashboard-filter-card" aria-label="Dashboard filters">
     <label class="filter-field">
       <span>Year</span>
-      <input aria-label="Year" type="number" bind:value={year} min="2000" max="2100" onchange={loadDashboard} />
+      <input aria-label="Year" type="number" bind:value={year} min="2000" max="2100" onchange={handleYearChange} />
     </label>
     <label class="filter-field">
       <span>Month</span>
-      <select aria-label="Month" bind:value={month} onchange={loadDashboard}>
+      <select aria-label="Month" bind:value={month} onchange={loadDailyStats}>
         {#each months as item}
           <option value={item.value}>{item.label}</option>
         {/each}
@@ -89,12 +123,12 @@
 
 {#if error}
   <div class="panel">{error}</div>
-{:else if stats}
+{:else if dailyStats && monthlyStats && yearlyStats}
   <section class="card-grid">
-    <article class="card stat-card stat-card-distance"><span>Total distance</span><strong>{formatKilometers(stats.totalDistanceKm)}</strong></article>
-    <article class="card stat-card stat-card-rides"><span>Rides</span><strong>{stats.rideCount}</strong></article>
-    <article class="card stat-card stat-card-average"><span>Average ride</span><strong>{formatKilometers(stats.averageDistanceKm)}</strong></article>
-    <article class="card stat-card stat-card-longest"><span>Longest ride</span><strong>{formatKilometers(stats.longestRideKm)}</strong></article>
+    <article class="card stat-card stat-card-distance"><span>Total distance</span><strong>{formatKilometers(dailyStats.totalDistanceKm)}</strong></article>
+    <article class="card stat-card stat-card-rides"><span>Rides</span><strong>{dailyStats.rideCount}</strong></article>
+    <article class="card stat-card stat-card-average"><span>Average ride</span><strong>{formatKilometers(dailyStats.averageDistanceKm)}</strong></article>
+    <article class="card stat-card stat-card-longest"><span>Longest ride</span><strong>{formatKilometers(dailyStats.longestRideKm)}</strong></article>
   </section>
 
   <section class="dashboard-charts">
