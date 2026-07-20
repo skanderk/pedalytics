@@ -38,12 +38,11 @@ export interface DashboardSummary {
   rideCount: number;
   averageDistanceKm: number;
   longestRideKm: number;
-}
-
-export interface DashboardBucket extends DashboardSummary {
   averageSpeedKmh: number | null;
   maxSpeedKmh: number | null;
 }
+
+export interface DashboardBucket extends DashboardSummary {}
 
 export interface DashboardDailyStats extends DashboardSummary {
   dayMetrics: Array<DashboardBucket & { rideDate: string }>;

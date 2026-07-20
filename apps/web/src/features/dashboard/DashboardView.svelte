@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { pedalyticsApi, type DashboardDailyStats, type DashboardMonthlyStats, type DashboardYearlyStats } from "../../lib/api/pedalyticsApi";
-  import { formatKilometers } from "../../lib/formatting/distance";
+  import DashboardSection from "./DashboardSection.svelte";
   import DistanceChart from "./DistanceChart.svelte";
 
   const currentDate = new Date();
@@ -124,16 +124,8 @@
 {#if error}
   <div class="panel">{error}</div>
 {:else if dailyStats && monthlyStats && yearlyStats}
-  <section class="card-grid">
-    <article class="card stat-card stat-card-distance"><span>Total distance</span><strong>{formatKilometers(dailyStats.totalDistanceKm)}</strong></article>
-    <article class="card stat-card stat-card-rides"><span>Rides</span><strong>{dailyStats.rideCount}</strong></article>
-    <article class="card stat-card stat-card-average"><span>Average ride</span><strong>{formatKilometers(dailyStats.averageDistanceKm)}</strong></article>
-    <article class="card stat-card stat-card-longest"><span>Longest ride</span><strong>{formatKilometers(dailyStats.longestRideKm)}</strong></article>
-  </section>
-
   <section class="dashboard-charts">
-    <article class="panel chart-panel chart-panel-daily daily-chart">
-      <h2>Distance by day in {selectedMonthLabel} {year}</h2>
+    <DashboardSection stats={dailyStats} subtitle={String(year)} title={`Stats of ${selectedMonthLabel}`} tone="daily">
       <DistanceChart
         ariaLabel="Distance by day chart"
         averageSpeedColor="#184d38"
@@ -143,10 +135,9 @@
         {showAverageSpeed}
         {showMaxSpeed}
       />
-    </article>
+    </DashboardSection>
 
-    <article class="panel chart-panel chart-panel-monthly">
-      <h2>Distance by month in {year}</h2>
+    <DashboardSection stats={monthlyStats} title={`Stats of ${year}`} tone="monthly">
       <DistanceChart
         ariaLabel="Distance by month chart"
         averageSpeedColor="#1f5377"
@@ -156,10 +147,9 @@
         {showAverageSpeed}
         {showMaxSpeed}
       />
-    </article>
+    </DashboardSection>
 
-    <article class="panel chart-panel chart-panel-yearly">
-      <h2>Distance by year</h2>
+    <DashboardSection class="global-chart" stats={yearlyStats} title="Global" tone="global">
       {#if yearlyDistancePoints.length}
         <DistanceChart
           ariaLabel="Distance by year chart"
@@ -173,7 +163,7 @@
       {:else}
         <div class="empty-state">No rides found yet.</div>
       {/if}
-    </article>
+    </DashboardSection>
   </section>
 {/if}
 
@@ -182,35 +172,6 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
-    margin-top: 18px;
-  }
-
-  .stat-card {
-    --stat-bg:
-      radial-gradient(circle at top right, rgba(28, 124, 84, 0.12), transparent 42%),
-      linear-gradient(135deg, #ffffff 0%, #f3fbef 100%);
-    --stat-border: #cfe2c6;
-    --stat-accent: #1c7c54;
-    position: relative;
-    overflow: hidden;
-    border-color: var(--stat-border);
-    background: var(--stat-bg);
-    box-shadow:
-      0 12px 24px rgba(23, 32, 27, 0.07),
-      0 2px 6px rgba(23, 32, 27, 0.04);
-  }
-
-  .stat-card::before {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 4px;
-    background: var(--stat-accent);
-  }
-
-  .stat-card span,
-  .stat-card strong {
-    position: relative;
   }
 
   .dashboard-header {
@@ -272,54 +233,20 @@
     accent-color: #1c7c54;
   }
 
-  .dashboard-charts .panel {
-    margin-top: 0;
-    min-width: 0;
-  }
-
-  .chart-panel {
-    border-color: var(--chart-border);
-    background: var(--chart-bg);
-    box-shadow:
-      0 16px 32px rgba(23, 32, 27, 0.08),
-      0 2px 6px rgba(23, 32, 27, 0.04);
-  }
-
-  .chart-panel h2 {
-    color: var(--chart-heading);
-  }
-
-  .chart-panel-daily {
-    --chart-bg:
-      radial-gradient(circle at top left, rgba(28, 124, 84, 0.14), transparent 34%),
-      linear-gradient(135deg, #f3fbef 0%, #ffffff 58%, #eef8eb 100%);
-    --chart-border: #cfe2c6;
-    --chart-heading: #1c7c54;
-  }
-
-  .chart-panel-monthly {
-    --chart-bg:
-      radial-gradient(circle at top left, rgba(47, 111, 159, 0.14), transparent 34%),
-      linear-gradient(135deg, #eef8fd 0%, #ffffff 58%, #edf6fb 100%);
-    --chart-border: #c9dce8;
-    --chart-heading: #2f6f9f;
-  }
-
-  .chart-panel-yearly {
-    --chart-bg:
-      radial-gradient(circle at top left, rgba(138, 111, 42, 0.16), transparent 34%),
-      linear-gradient(135deg, #fff6db 0%, #ffffff 58%, #fbf3df 100%);
-    --chart-border: #e5d8ad;
-    --chart-heading: #77601f;
-  }
-
-  .daily-chart {
+  :global(.global-chart) {
     grid-column: 1 / -1;
+    width: calc(50% - 9px);
+    justify-self: center;
   }
 
   @media (max-width: 900px) {
     .dashboard-charts {
       grid-template-columns: 1fr;
+    }
+
+    :global(.global-chart) {
+      grid-column: auto;
+      width: auto;
     }
   }
 

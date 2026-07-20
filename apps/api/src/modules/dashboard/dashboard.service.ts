@@ -59,11 +59,7 @@ export class DashboardService {
   }
 
   private toMetricsWithSpeed(row: RideMetrics): RideMetrics {
-    return {
-      ...this.toSummary(row),
-      averageSpeedKmh: roundNullable(row.averageSpeedKmh),
-      maxSpeedKmh: roundNullable(row.maxSpeedKmh)
-    };
+    return this.toSummary(row);
   }
 
   private toSummary(row: RideMetrics): RideMetrics {
@@ -72,8 +68,8 @@ export class DashboardService {
       rideCount: row.rideCount,
       averageDistanceKm: roundValue(row.averageDistanceKm ?? 0),
       longestRideKm: roundValue(row.longestRideKm ?? 0),
-      averageSpeedKmh: null,
-      maxSpeedKmh: null
+      averageSpeedKmh: roundNullable(row.averageSpeedKmh),
+      maxSpeedKmh: roundNullable(row.maxSpeedKmh)
     };
   }
 }

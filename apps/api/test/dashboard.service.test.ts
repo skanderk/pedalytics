@@ -49,7 +49,9 @@ describe("DashboardService", () => {
       totalDistanceKm: 22.3,
       rideCount: 2,
       averageDistanceKm: 11.1,
-      longestRideKm: 12.3
+      longestRideKm: 12.3,
+      averageSpeedKmh: 21,
+      maxSpeedKmh: 35
     });
     expect(daily.dayMetrics).toHaveLength(30);
     expect(daily.dayMetrics[0]).toEqual({
@@ -123,6 +125,7 @@ describe("DashboardService", () => {
     const yearly = service.getAllYearsMetrics();
 
     expect(daily).toMatchObject({ totalDistanceKm: 0, rideCount: 0, averageDistanceKm: 0, longestRideKm: 0 });
+    expect(daily.averageSpeedKmh).toBeNull();
     expect(daily.dayMetrics).toHaveLength(30);
     expect(monthly.monthMetrics).toHaveLength(12);
     expect(yearly.yearMetrics).toEqual([]);
