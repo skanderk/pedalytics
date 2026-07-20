@@ -16,6 +16,12 @@
 
   const months = Array.from({ length: 12 }, (_, index) => ({ value: index + 1, label: new Date(2026, index, 1).toLocaleString(undefined, { month: "long" }) }));
   const shortMonths = Array.from({ length: 12 }, (_, index) => new Date(2026, index, 1).toLocaleString(undefined, { month: "short" }));
+  const availableYears = $derived(yearlyStats?.yearMetrics.filter((item) => item.rideCount > 0).map((item) => item.year) ?? []);
+  const availableMonths = $derived(
+    monthlyStats?.monthMetrics
+      .filter((item) => item.rideCount > 0)
+      .map((item) => months[item.month - 1]) ?? []
+  );
   const selectedMonthLabel = $derived(months.find((item) => item.value === month)?.label ?? "Selected month");
   const dailyDistancePoints = $derived(
     dailyStats?.dayMetrics.map((point) => ({
@@ -60,30 +66,40 @@
     }
   }
 
-  async function loadMonthlyStats() {
-    try {
-      error = "";
-      monthlyStats = await pedalyticsApi.getMonthlyDashboard(year);
-    } catch (caught) {
-      error = caught instanceof Error ? caught.message : "Dashboard failed to load";
-    }
-  }
-
-  async function loadYearlyStats() {
+  async function loadDashboard() {
     try {
       error = "";
       yearlyStats = await pedalyticsApi.getYearlyDashboard();
+
+      const yearsWithData = yearlyStats.yearMetrics.filter((item) => item.rideCount > 0).map((item) => item.year);
+      if (yearsWithData.length && !yearsWithData.includes(year)) {
+        year = yearsWithData.at(-1) ?? year;
+      }
+
+      await loadSelectedYear();
     } catch (caught) {
       error = caught instanceof Error ? caught.message : "Dashboard failed to load";
     }
   }
 
-  async function loadDashboard() {
-    await Promise.all([loadDailyStats(), loadMonthlyStats(), loadYearlyStats()]);
+  async function handleYearChange() {
+    try {
+      error = "";
+      await loadSelectedYear();
+    } catch (caught) {
+      error = caught instanceof Error ? caught.message : "Dashboard failed to load";
+    }
   }
 
-  async function handleYearChange() {
-    await Promise.all([loadDailyStats(), loadMonthlyStats()]);
+  async function loadSelectedYear() {
+    monthlyStats = await pedalyticsApi.getMonthlyDashboard(year);
+    const monthsWithData = monthlyStats.monthMetrics.filter((item) => item.rideCount > 0).map((item) => item.month);
+
+    if (monthsWithData.length && !monthsWithData.includes(month)) {
+      month = monthsWithData.at(-1) ?? month;
+    }
+
+    dailyStats = await pedalyticsApi.getDailyDashboard(year, month);
   }
 
   onMount(loadDashboard);
@@ -97,12 +113,16 @@
   <div class="toolbar dashboard-filter-card" aria-label="Dashboard filters">
     <label class="filter-field">
       <span>Year</span>
-      <input aria-label="Year" type="number" bind:value={year} min="2000" max="2100" onchange={handleYearChange} />
+      <select aria-label="Year" bind:value={year} onchange={handleYearChange} disabled={!availableYears.length}>
+        {#each availableYears as availableYear}
+          <option value={availableYear}>{availableYear}</option>
+        {/each}
+      </select>
     </label>
     <label class="filter-field">
       <span>Month</span>
-      <select aria-label="Month" bind:value={month} onchange={loadDailyStats}>
-        {#each months as item}
+      <select aria-label="Month" bind:value={month} onchange={loadDailyStats} disabled={!availableMonths.length}>
+        {#each availableMonths as item}
           <option value={item.value}>{item.label}</option>
         {/each}
       </select>
