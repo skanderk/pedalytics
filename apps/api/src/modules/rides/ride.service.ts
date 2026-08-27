@@ -2,6 +2,15 @@ import type { LocationRepository } from "../locations/location.repository.js";
 import type { WeatherProvider } from "../weather/weather.service.js";
 import type { Ride, RideDetails, RideDetailsWithWeather } from "./ride.domain.js";
 import type { RideRepository } from "./ride.repository.js";
+import type { RideListQuery } from "./ride.schema.js";
+
+export interface PaginatedRides {
+  items: Ride[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
 
 export class RideService {
   constructor(
@@ -10,8 +19,15 @@ export class RideService {
     private readonly weather: WeatherProvider
   ) {}
 
-  listRides(): Ride[] {
-    return this.rides.list();
+  listRides({ page, pageSize }: RideListQuery): PaginatedRides {
+    const total = this.rides.count();
+    return {
+      items: this.rides.listPage(page, pageSize),
+      page,
+      pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize)
+    };
   }
 
   getRide(id: number): Ride {

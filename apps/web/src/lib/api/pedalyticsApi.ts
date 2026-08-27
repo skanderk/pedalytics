@@ -33,6 +33,14 @@ export interface Ride {
   weatherCode: number | null;
 }
 
+export interface PaginatedRides {
+  items: Ride[];
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
 export interface DashboardSummary {
   totalDistanceKm: number;
   rideCount: number;
@@ -89,7 +97,12 @@ export const pedalyticsApi = {
     return apiRequest<DashboardMonthlyStats>(`/api/dashboard/monthly?${params}`);
   },
   getYearlyDashboard: () => apiRequest<DashboardYearlyStats>("/api/dashboard/yearly"),
-  listRides: () => apiRequest<Ride[]>("/api/rides"),
+  listRides: (page = 1, pageSize = 10) => {
+    const params = new URLSearchParams();
+    params.set("page", String(page));
+    params.set("pageSize", String(pageSize));
+    return apiRequest<PaginatedRides>(`/api/rides?${params}`);
+  },
   createRide: (input: RideInput) => apiRequest<Ride>("/api/rides", { method: "POST", body: JSON.stringify(input) }),
   updateRide: (id: number, input: RideInput) => apiRequest<Ride>(`/api/rides/${id}`, { method: "PUT", body: JSON.stringify(input) }),
   deleteRide: (id: number) => apiRequest<void>(`/api/rides/${id}`, { method: "DELETE" }),

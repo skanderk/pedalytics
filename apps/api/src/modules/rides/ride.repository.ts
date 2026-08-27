@@ -1,4 +1,4 @@
-import { asc, desc, eq } from "drizzle-orm";
+import { asc, count, desc, eq } from "drizzle-orm";
 import type { PedalyticsDatabase } from "../../db/client.js";
 import { rides } from "../../db/schema.js";
 import type { Ride, RideDetailsWithWeather } from "./ride.domain.js";
@@ -17,6 +17,21 @@ export class RideRepository {
       .orderBy(desc(rides.rideDate), desc(rides.id))
       .all()
       .map((ride) => this.mapper.toDomain(ride));
+  }
+
+  listPage(page: number, pageSize: number): Ride[] {
+    return this.db
+      .select()
+      .from(rides)
+      .orderBy(desc(rides.rideDate), desc(rides.id))
+      .limit(pageSize)
+      .offset((page - 1) * pageSize)
+      .all()
+      .map((ride) => this.mapper.toDomain(ride));
+  }
+
+  count(): number {
+    return this.db.select({ value: count() }).from(rides).get()?.value ?? 0;
   }
 
   listAscending(): Ride[] {

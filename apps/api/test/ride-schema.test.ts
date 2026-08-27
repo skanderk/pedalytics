@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { rideCreateSchema } from "../src/modules/rides/ride.schema.js";
+import { rideCreateSchema, rideListQuerySchema } from "../src/modules/rides/ride.schema.js";
 
 describe("rideCreateSchema", () => {
   it("allows legacy ride input with only date and distance", () => {
@@ -76,5 +76,20 @@ describe("rideCreateSchema", () => {
     });
 
     expect(result.success).toBe(false);
+  });
+});
+
+describe("rideListQuerySchema", () => {
+  it("defaults to the first page with ten rides", () => {
+    expect(rideListQuerySchema.parse({})).toEqual({ page: 1, pageSize: 10 });
+  });
+
+  it("coerces valid pagination query parameters", () => {
+    expect(rideListQuerySchema.parse({ page: "2", pageSize: "25" })).toEqual({ page: 2, pageSize: 25 });
+  });
+
+  it("rejects invalid pagination parameters", () => {
+    expect(rideListQuerySchema.safeParse({ page: "0" }).success).toBe(false);
+    expect(rideListQuerySchema.safeParse({ pageSize: "101" }).success).toBe(false);
   });
 });

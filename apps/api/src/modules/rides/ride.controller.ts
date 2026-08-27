@@ -1,13 +1,16 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import type { RideDetails } from "./ride.domain.js";
-import { rideCreateSchema, rideIdParamsSchema, rideUpdateSchema } from "./ride.schema.js";
+import { rideCreateSchema, rideIdParamsSchema, rideListQuerySchema, rideUpdateSchema } from "./ride.schema.js";
 import type { RideCreateInput, RideUpdateInput } from "./ride.schema.js";
 import type { RideService } from "./ride.service.js";
 
 export class RideController {
   constructor(private readonly rides: RideService) {}
 
-  list = async () => this.rides.listRides();
+  list = async (request: FastifyRequest) => {
+    const query = rideListQuerySchema.parse(request.query);
+    return this.rides.listRides(query);
+  };
 
   get = async (request: FastifyRequest) => {
     const { id } = rideIdParamsSchema.parse(request.params);

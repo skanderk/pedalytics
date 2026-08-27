@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { Cloud, CloudFog, CloudLightning, CloudRain, CloudSnow, CloudSun, Eye, Plus, Pencil, Sun, Trash2 } from "@lucide/svelte";
+  import { ChevronLeft, ChevronRight, Cloud, CloudFog, CloudLightning, CloudRain, CloudSnow, CloudSun, Eye, Plus, Pencil, Sun, Trash2 } from "@lucide/svelte";
   import { pedalyticsApi, type AppSettings, type Location, type Ride, type RideInput } from "../../lib/api/pedalyticsApi";
   import { formatDate } from "../../lib/formatting/date";
   import { formatKilometers, formatOptionalKilometersPerHour } from "../../lib/formatting/distance";
@@ -15,6 +15,11 @@
   let showForm = $state(false);
   let error = $state("");
   let saveError = $state("");
+  let page = $state(1);
+  let total = $state(0);
+  let totalPages = $state(0);
+  let isLoadingPage = $state(false);
+  const pageSize = 10;
 
   const locationName = (id: number | null) => locations.find((location) => location.id === id)?.name ?? "Unassigned";
   const selectedRide = $derived(rides.find((ride) => ride.id === selectedRideId) ?? null);
@@ -22,13 +27,32 @@
   async function load() {
     try {
       error = "";
-      [rides, locations, settings] = await Promise.all([pedalyticsApi.listRides(), pedalyticsApi.listLocations(), pedalyticsApi.getSettings()]);
+      isLoadingPage = true;
+      const [ridePage, loadedLocations, loadedSettings] = await Promise.all([
+        pedalyticsApi.listRides(page, pageSize),
+        pedalyticsApi.listLocations(),
+        pedalyticsApi.getSettings()
+      ]);
+      rides = ridePage.items;
+      locations = loadedLocations;
+      settings = loadedSettings;
+      total = ridePage.total;
+      totalPages = ridePage.totalPages;
       if (selectedRideId && !rides.some((ride) => ride.id === selectedRideId)) {
         selectedRideId = null;
       }
     } catch (caught) {
       error = caught instanceof Error ? caught.message : "Rides could not be loaded";
+    } finally {
+      isLoadingPage = false;
     }
+  }
+
+  async function changePage(nextPage: number) {
+    if (isLoadingPage || nextPage < 1 || nextPage > totalPages || nextPage === page) return;
+    page = nextPage;
+    selectedRideId = null;
+    await load();
   }
 
   async function save(input: RideInput) {
@@ -37,6 +61,7 @@
       const ride = maybeEditedRide
         ? await pedalyticsApi.updateRide(maybeEditedRide.id, input)
         : await pedalyticsApi.createRide(input);
+      if (!maybeEditedRide) page = 1;
       selectedRideId = ride.id;
       showForm = false;
       maybeEditedRide = null;
@@ -51,6 +76,7 @@
       error = "";
       await pedalyticsApi.deleteRide(id);
       if (selectedRideId === id) selectedRideId = null;
+      if (rides.length === 1 && page > 1) page -= 1;
       await load();
     } catch (caught) {
       error = caught instanceof Error ? caught.message : "Ride could not be deleted";
@@ -158,6 +184,30 @@
 
 <section class="panel">
   {#if rides.length}
+    <nav class="pagination" aria-label="Rides pagination">
+      <span class="pagination-summary">
+        {Math.min((page - 1) * pageSize + 1, total)}–{Math.min(page * pageSize, total)} of {total}
+      </span>
+      <div class="pagination-controls">
+        <button
+          class="button secondary pagination-button"
+          type="button"
+          title="Previous page"
+          aria-label="Previous page"
+          disabled={page <= 1 || isLoadingPage}
+          onclick={() => changePage(page - 1)}
+        ><ChevronLeft size={18} /></button>
+        <span aria-live="polite">Page {page} of {totalPages}</span>
+        <button
+          class="button secondary pagination-button"
+          type="button"
+          title="Next page"
+          aria-label="Next page"
+          disabled={page >= totalPages || isLoadingPage}
+          onclick={() => changePage(page + 1)}
+        ><ChevronRight size={18} /></button>
+      </div>
+    </nav>
     <div class="table-scroll">
       <table>
         <thead><tr><th>Date</th><th>Distance</th><th>Max speed</th><th>Average speed</th><th>Route</th><th>Wind</th><th>Notes</th><th class="actions-cell"></th></tr></thead>

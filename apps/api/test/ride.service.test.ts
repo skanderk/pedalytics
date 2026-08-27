@@ -29,6 +29,8 @@ const baseRide = new Ride({
 function buildService(existingRides: Ride[]) {
   const repository = {
     list: () => existingRides,
+    listPage: (page: number, pageSize: number) => existingRides.slice((page - 1) * pageSize, page * pageSize),
+    count: () => existingRides.length,
     listAscending: () => existingRides,
     findById: (id: number) => existingRides.find((ride) => ride.id === id),
     listByRideDate: (rideDate: string) => existingRides.filter((ride) => ride.rideDate === rideDate),
@@ -51,6 +53,19 @@ function buildService(existingRides: Ride[]) {
 }
 
 describe("RideService", () => {
+  it("returns rides with pagination metadata", () => {
+    const rides = Array.from({ length: 12 }, (_, index) => new Ride({ ...baseRide, id: index + 1 }));
+    const service = buildService(rides);
+
+    expect(service.listRides({ page: 2, pageSize: 10 })).toMatchObject({
+      items: rides.slice(10),
+      page: 2,
+      pageSize: 10,
+      total: 12,
+      totalPages: 2
+    });
+  });
+
   it("rejects creating a ride that overlaps an existing ride on the same date", async () => {
     const service = buildService([baseRide]);
 

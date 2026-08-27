@@ -30,5 +30,11 @@ export const rideIdParamsSchema = z.object({
   id: z.coerce.number().int().positive()
 });
 
+export const rideListQuerySchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  pageSize: z.coerce.number().int().positive().max(100).default(10)
+});
+
 export type RideCreateInput = z.infer<typeof rideCreateSchema>;
 export type RideUpdateInput = z.infer<typeof rideUpdateSchema>;
+export type RideListQuery = z.infer<typeof rideListQuerySchema>;
