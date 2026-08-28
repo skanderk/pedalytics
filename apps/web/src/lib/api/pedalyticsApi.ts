@@ -41,6 +41,14 @@ export interface PaginatedRides {
   totalPages: number;
 }
 
+export interface DestinationVisit {
+  locationId: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+  visitCount: number;
+}
+
 export interface DashboardSummary {
   totalDistanceKm: number;
   rideCount: number;
@@ -103,6 +111,7 @@ export const pedalyticsApi = {
     params.set("pageSize", String(pageSize));
     return apiRequest<PaginatedRides>(`/api/rides?${params}`);
   },
+  getRideHeatmap: () => apiRequest<DestinationVisit[]>("/api/rides/heatmap"),
   createRide: (input: RideInput) => apiRequest<Ride>("/api/rides", { method: "POST", body: JSON.stringify(input) }),
   updateRide: (id: number, input: RideInput) => apiRequest<Ride>(`/api/rides/${id}`, { method: "PUT", body: JSON.stringify(input) }),
   deleteRide: (id: number) => apiRequest<void>(`/api/rides/${id}`, { method: "DELETE" }),

@@ -45,6 +45,14 @@ export interface RideFields {
   weatherCode: number | null;
 }
 
+export interface DestinationVisit {
+  locationId: number;
+  name: string;
+  latitude: number;
+  longitude: number;
+  visitCount: number;
+}
+
 export class Ride implements RideFields {
   readonly id: number;
   readonly rideDate: string;

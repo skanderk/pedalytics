@@ -12,6 +12,8 @@ export class RideController {
     return this.rides.listRides(query);
   };
 
+  heatmap = async () => this.rides.listDestinationVisits();
+
   get = async (request: FastifyRequest) => {
     const { id } = rideIdParamsSchema.parse(request.params);
     return this.rides.getRide(id);

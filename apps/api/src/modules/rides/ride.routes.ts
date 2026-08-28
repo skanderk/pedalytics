@@ -17,6 +17,7 @@ export async function registerRideRoutes(app: FastifyInstance): Promise<void> {
   const controller = new RideController(service);
 
   app.get("/api/rides", controller.list);
+  app.get("/api/rides/heatmap", controller.heatmap);
   app.get("/api/rides/:id", controller.get);
   app.post("/api/rides", controller.create);
   app.put("/api/rides/:id", controller.update);

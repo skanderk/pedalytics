@@ -1,7 +1,7 @@
-import { asc, count, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNotNull } from "drizzle-orm";
 import type { PedalyticsDatabase } from "../../db/client.js";
-import { rides } from "../../db/schema.js";
-import type { Ride, RideDetailsWithWeather } from "./ride.domain.js";
+import { locations, rides } from "../../db/schema.js";
+import type { DestinationVisit, Ride, RideDetailsWithWeather } from "./ride.domain.js";
 import type { RidePersistenceMapper } from "./ride.persistence-mapper.js";
 
 export class RideRepository {
@@ -32,6 +32,25 @@ export class RideRepository {
 
   count(): number {
     return this.db.select({ value: count() }).from(rides).get()?.value ?? 0;
+  }
+
+  listDestinationVisits(): DestinationVisit[] {
+    const visitCount = count(rides.id);
+
+    return this.db
+      .select({
+        locationId: locations.id,
+        name: locations.name,
+        latitude: locations.latitude,
+        longitude: locations.longitude,
+        visitCount
+      })
+      .from(rides)
+      .innerJoin(locations, eq(rides.destinationLocationId, locations.id))
+      .where(and(isNotNull(locations.latitude), isNotNull(locations.longitude)))
+      .groupBy(locations.id, locations.name, locations.latitude, locations.longitude)
+      .orderBy(desc(visitCount), asc(locations.name))
+      .all() as DestinationVisit[];
   }
 
   listAscending(): Ride[] {

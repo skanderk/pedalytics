@@ -1,6 +1,6 @@
 import type { LocationRepository } from "../locations/location.repository.js";
 import type { WeatherProvider } from "../weather/weather.service.js";
-import type { Ride, RideDetails, RideDetailsWithWeather } from "./ride.domain.js";
+import type { DestinationVisit, Ride, RideDetails, RideDetailsWithWeather } from "./ride.domain.js";
 import type { RideRepository } from "./ride.repository.js";
 import type { RideListQuery } from "./ride.schema.js";
 
@@ -28,6 +28,10 @@ export class RideService {
       total,
       totalPages: Math.ceil(total / pageSize)
     };
+  }
+
+  listDestinationVisits(): DestinationVisit[] {
+    return this.rides.listDestinationVisits();
   }
 
   getRide(id: number): Ride {

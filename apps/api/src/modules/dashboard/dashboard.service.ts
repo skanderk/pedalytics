@@ -1,4 +1,4 @@
-import type { DashboardRepository } from "./dashboardRepository.repository.js";
+import type { DashboardRepository } from "./dashboard.repository.js";
 import type { AllYearsMetricsReport, MetricsByDay, MetricsByMonth, MetricsByYear, MonthMetricsReport, RideMetrics, YearMetricsReport } from "./dashboard.types.js";
 
 export class DashboardService {
